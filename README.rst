@@ -40,25 +40,31 @@ For example::
 
  'swmmtoolbox getdata --help'
  
-     Usage: /sjr/beodata/local/python_linux/bin/swmmtoolbox getdata <filename> <type> <name> <variableindex>
-     
-     Get the time series data for a particular object and variable
-     
-     Required Arguments:
-     
-       filename        Filename of SWMM output file.
-       type            Type to print out the table of (subcatchment, node, link, or
-                       system)
-       name            Name of the object
-       variableindex   The variable index number, different variables are stored
-                       for each type. Use 'listvariables' for a guide.
+    Usage: /sjr/beodata/local/python_linux/bin/swmmtoolbox getdata <filename> [<labels>...]
+    
+    Get the time series data for a particular object and variable
+    
+    Required Arguments:
+    
+      filename   Filename of SWMM output file.
+    
+    Variable arguments:
+    
+       *labels   The remaining arguments uniquely identify a time-series in the
+                 binary file. The format is 'TYPE,NAME,VARINDEX'. For example:
+                 'node,C64,1 node,C63,1 ...' TYPE and NAME can be retrieved with
+                 'swmmtoolbox list filename.out' VARINDEX can be retrieved with
+                 'swmmtoolbox listvariables filename.out'
+    
+    (specifying a double hyphen (--) in the argument list means all
+    subsequent arguments are treated as bare arguments, not options)
 
 Author
 ======
 
 Tim Cera, P.E.
 
-tim@cerazone.net
+tim at cerazone dot net
 
 Please send me a note if you find this useful, found a bug, submit a patch,
 ...etc.

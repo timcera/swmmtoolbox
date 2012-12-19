@@ -8,6 +8,9 @@ import struct
 import datetime
 
 import baker
+import pandas as pd
+
+import tsutils # part of tstoolbox
 
 PROPCODE = {0: {1: 'Area',
                 },
@@ -93,7 +96,7 @@ class SwmmExtract():
         if magic1 != 516114522:
             print 'First magic number incorrect.'
             sys.exit(1)
-        if magic2 != 516114522: 
+        if magic2 != 516114522:
             print 'Second magic number incorrect.'
             sys.exit(1)
         if errcode != 0:
@@ -243,10 +246,10 @@ def list(filename, type=''):
         plist = [typenumber]
     else:
         plist = range(len(obj.itemlist))
+    print 'TYPE, NAME'
     for i in plist:
-        print obj.itemlist[i].upper()
         for oname in obj.names[i]:
-            print '    ',oname
+            print '{0},{1}'.format(obj.itemlist[i],oname)
 
 @baker.command
 def listdetail(filename, type, name=''):
@@ -278,49 +281,57 @@ def listdetail(filename, type, name=''):
         print fmtstr.format(*tuple(printvar))
 
 @baker.command
-def listvariables(filename, type):
+def listvariables(filename):
     ''' List variables available for each type
     :param filename: Filename of SWMM output file.
     :param type: Type to print out the table of (subcatchment, node, link, pollutant, system)
     '''
     obj = SwmmExtract(filename)
-    typenumber = obj.TypeCheck(type)
-    for i in obj.vars[typenumber]:
-        print i,': ', VARCODE[typenumber][i]
+    print 'TYPE, DESCRIPTION, VARINDEX'
+    for type in ['subcatchment', 'node', 'link', 'pollutant', 'system']:
+        typenumber = obj.TypeCheck(type)
+        for i in obj.vars[typenumber]:
+            print '{0},{1},{2}'.format(type, VARCODE[typenumber][i], i)
+
 
 @baker.command
-def getdata(filename, type, name, variableindex):
+def getdata(filename, *labels):
     ''' Get the time series data for a particular object and variable
     :param filename: Filename of SWMM output file.
-    :param type: Type to print out the table of (subcatchment, node, link, or system)
-    :param name: Name of the object
-    :param variableindex: The variable index number, different variables are stored for each type.  Use 'listvariables' for a guide.
+    :param labels: The remaining arguments uniquely identify a time-series
+        in the binary file.  The format is
+        'TYPE,NAME,VARINDEX'.
+        For example: 'node,C64,1 node,C63,1 ...'
+        TYPE and NAME can be retrieved with
+            'swmmtoolbox list filename.out'
+        VARINDEX can be retrieved with
+            'swmmtoolbox listvariables filename.out'
     '''
     obj = SwmmExtract(filename)
-    typenumber = obj.TypeCheck(type)
-    if type != 'system':
-        name = obj.NameCheck(type, name)[0]
-    begindate = datetime.datetime(1899,12,30)
-    print '#{0},{1}'.format(name,VARCODE[typenumber][int(variableindex)])
+    for label in labels:
+        type, name, variableindex = label.split(',')
+        typenumber = obj.TypeCheck(type)
+        if type != 'system':
+            name = obj.NameCheck(type, name)[0]
+        begindate = datetime.datetime(1899,12,30)
 
-    isodatestr = '{0.year}'
-    if obj.reportinterval < datetime.timedelta(days = 365):
-        isodatestr = isodatestr + '-{0.month:02d}'
-    if obj.reportinterval < datetime.timedelta(days = 28):
-        isodatestr = isodatestr + '-{0.day:02d}'
-    if obj.reportinterval < datetime.timedelta(seconds = 86400):
-        isodatestr = isodatestr + 'T{0.hour:02d}'
-    if obj.reportinterval < datetime.timedelta(seconds = 3600):
-        isodatestr = isodatestr + ':{0.minute:02d}'
-    if obj.reportinterval < datetime.timedelta(seconds = 60):
-        isodatestr = isodatestr + ':{0.second:02d}'
+        dates = []
+        values = []
+        for time in range(obj.nperiods):
+            date, value = obj.GetSwmmResults(typenumber, name, int(variableindex), time)
+            days = int(date)
+            seconds = (date - days)*86400
+            date = begindate + datetime.timedelta(days = days, seconds = seconds)
+            dates.append(date)
+            values.append(value)
+        jtsd = pd.DataFrame(pd.Series(values, index=dates),
+                columns=['{0}_{1}_{2}'.format(type,name,VARCODE[typenumber][int(variableindex)])])
+        try:
+            result = result.join(jtsd)
+        except NameError:
+            result = jtsd
+    tsutils.printiso(result)
 
-    for time in range(obj.nperiods):
-        date, value = obj.GetSwmmResults(typenumber, name, int(variableindex), time)
-        days = int(date)
-        seconds = (date - days)*86400
-        date = begindate + datetime.timedelta(days = days, seconds = seconds)
-        print isodatestr.format(date), ',', value
 
 def main():
     baker.run()

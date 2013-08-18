@@ -1,3 +1,6 @@
+
+from __future__ import print_function
+
 # Example package with a console entry point
 """
 Reads and formats data from the SWMM 5 output file.
@@ -94,16 +97,16 @@ class SwmmExtract():
         magic1 = struct.unpack('i', self.fp.read(self.RECORDSIZE))[0]
 
         if magic1 != 516114522:
-            print 'First magic number incorrect.'
+            print('First magic number incorrect.')
             sys.exit(1)
         if magic2 != 516114522:
-            print 'Second magic number incorrect.'
+            print('Second magic number incorrect.')
             sys.exit(1)
         if errcode != 0:
-            print 'Error code in the output file indicates a problem with the run'
+            print('Error code in the output file indicates a problem with the run')
             sys.exit(1)
         if self.nperiods == 0:
-            print 'There are zero time periods in the output file'
+            print('There are zero time periods in the output file')
             sys.exit(1)
 
         version, self.flowunits, self.nsubcatch, self.nnodes, self.nlinks, self.npolluts = struct.unpack('6i', self.fp.read(6*self.RECORDSIZE))
@@ -180,7 +183,7 @@ class SwmmExtract():
         try:
             typenumber = self.itemlist.index(itemtype)
         except ValueError:
-            print 'Type argument is incorrect'
+            print('Type argument is incorrect')
             sys.exit(1)
         return typenumber
 
@@ -188,14 +191,14 @@ class SwmmExtract():
         self.itemtype = self.TypeCheck(itemtype)
         try:
             itemindex = self.names[self.itemtype].index(itemname)
-        except ValueError, KeyError:
-            print '%s was not found in %s list' % (itemname, itemtype)
+        except (ValueError, KeyError):
+            print('%s was not found in %s list' % (itemname, itemtype))
             sys.exit(1)
         return (itemname, itemindex)
 
     def GetSwmmResults(self, type, name, variableindex, period):
         if type not in [0, 1, 2, 4]:
-            print 'Type must be one of subcatchment, node. link, or system'
+            print('Type must be one of subcatchment, node. link, or system')
             sys.exit(1)
 
         itemname, itemindex = self.NameCheck(type, name)
@@ -246,10 +249,10 @@ def list(filename, type=''):
         plist = [typenumber]
     else:
         plist = range(len(obj.itemlist))
-    print 'TYPE, NAME'
+    print('TYPE, NAME')
     for i in plist:
         for oname in obj.names[i]:
-            print '{0},{1}'.format(obj.itemlist[i],oname)
+            print('{0},{1}'.format(obj.itemlist[i],oname))
 
 @baker.command
 def listdetail(filename, type, name=''):
@@ -268,7 +271,7 @@ def listdetail(filename, type, name=''):
     headstr = ['#Name'] + [PROPCODE[typenumber][i] for i in propnumbers]
     headfmtstr = '{0:<25},{1:<8},' + ','.join(
             ['{'+str(i)+':>10}' for i in range(2,1+len(propnumbers))])
-    print headfmtstr.format(*tuple(headstr))
+    print(headfmtstr.format(*tuple(headstr)))
     fmtstr = '{0:<25},{1:<8},' + ','.join(
             ['{'+str(i)+':10.2f}' for i in range(2,1+len(propnumbers))])
     for i,oname in enumerate(objectlist):
@@ -278,7 +281,7 @@ def listdetail(filename, type, name=''):
                 printvar.append(TYPECODE[typenumber][j[1]])
             else:
                 printvar.append(j[1])
-        print fmtstr.format(*tuple(printvar))
+        print(fmtstr.format(*tuple(printvar)))
 
 @baker.command
 def listvariables(filename):
@@ -287,11 +290,11 @@ def listvariables(filename):
     :param type: Type to print out the table of (subcatchment, node, link, pollutant, system)
     '''
     obj = SwmmExtract(filename)
-    print 'TYPE, DESCRIPTION, VARINDEX'
+    print('TYPE, DESCRIPTION, VARINDEX')
     for type in ['subcatchment', 'node', 'link', 'pollutant', 'system']:
         typenumber = obj.TypeCheck(type)
         for i in obj.vars[typenumber]:
-            print '{0},{1},{2}'.format(type, VARCODE[typenumber][i], i)
+            print('{0},{1},{2}'.format(type, VARCODE[typenumber][i], i))
 
 
 @baker.command

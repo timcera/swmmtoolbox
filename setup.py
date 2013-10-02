@@ -1,9 +1,9 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 import sys, os
 
 here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.rst')).read()
-NEWS = open(os.path.join(here, 'NEWS.txt')).read()
+CHANGES = open(os.path.join(here, 'CHANGES.rst')).read()
 
 
 version=open("VERSION").readline().strip()
@@ -15,7 +15,7 @@ install_requires = [
     'baker >= 1.3',
     'python-dateutil >= 1.5',    # python-dateutil-2.0 is for Python 3.0
     'pandas >= 0.9.0',
-    'tstoolbox >= 0.4',
+    'tstoolbox >= 0.5',
     'construct >= 2.06',
 ]
 
@@ -23,7 +23,7 @@ install_requires = [
 setup(name='swmmtoolbox',
     version=version,
     description="The swmmtoolbox extracts data from the Storm Water Management Model 5 binary output file.",
-    long_description=README + '\n\n' + NEWS,
+    long_description=README + '\n\n' + CHANGES,
     classifiers=[
       # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
     ],
@@ -31,9 +31,10 @@ setup(name='swmmtoolbox',
     author='Tim Cera, P.E.',
     author_email='tim@cerazone.net',
     url='',
-    license='GPL2',
-    packages=find_packages('src'),
-    package_dir = {'': 'src'},include_package_data=True,
+    license='BSD:3 clause',
+    packages=['swmmtoolbox'],
+    package_dir={'': '.'},
+    include_package_data=True,
     zip_safe=False,
     install_requires=install_requires,
     entry_points={

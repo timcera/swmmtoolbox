@@ -1,2 +1,7 @@
+include *.txt
+include VERSION
+include AUTHORS.rst
+include CONTRIBUTING.rst
+include CHANGES.rst
+include LICENSE.txt
 include README.rst
-include NEWS.txt

@@ -13,7 +13,7 @@ import datetime
 import baker
 import pandas as pd
 
-import tsutils # part of tstoolbox
+import tstoolbox.tsutils as tsutils
 
 PROPCODE = {0: {1: 'Area',
                 },

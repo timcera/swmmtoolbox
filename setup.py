@@ -16,7 +16,7 @@ install_requires = [
     'python-dateutil >= 1.5',    # python-dateutil-2.0 is for Python 3.0
     'pandas >= 0.9.0',
     'tstoolbox >= 0.5',
-    'construct >= 2.0.6',
+    'construct >= 2.5',
 ]
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Astronomia documentation build configuration file, created by
+# SWMMToolbox documentation build configuration file, created by
 # sphinx-quickstart on Mon Jun 10 23:11:56 2013.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -32,7 +32,8 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.coverage',
               'sphinx.ext.pngmath',
               'sphinx.ext.mathjax',
-              'sphinx.ext.autosummary']
+              'sphinx.ext.autosummary',
+              'sphinxcontrib.programoutput']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -47,7 +48,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'Astronomia'
+project = 'SWMMtoolbox'
 copyright = '2013, Tim Cera'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -171,7 +172,7 @@ html_show_sphinx = False
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Astronomiadoc'
+htmlhelp_basename = 'SWMMToolboxdoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -190,7 +191,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'Astronomia.tex', 'Astronomia Documentation',
+  ('index', 'SWMMToolbox.tex', 'SWMMToolbox Documentation',
    'Tim Cera', 'manual'),
 ]
 
@@ -220,7 +221,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'astronomia', 'Astronomia Documentation',
+    ('index', 'swmmtoolbox', 'SWMMToolbox Documentation',
      ['Tim Cera'], 1)
 ]
 
@@ -234,8 +235,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'Astronomia', 'Astronomia Documentation',
-   'Tim Cera', 'Astronomia', 'One line description of project.',
+  ('index', 'swmmtoolbox', 'SWMMToolbox Documentation',
+   'Tim Cera', 'SWMMToolbox', 'One line description of project.',
    'Miscellaneous'),
 ]
 

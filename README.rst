@@ -1,5 +1,5 @@
-SWMMToolbox
-===========
+SWMMToolbox - Overview
+----------------------
 
 The swmmtoolbox is a Python script to read the Storm Water Management Model
 (SWMM) version 5 binary output files.
@@ -27,7 +27,7 @@ Just run 'swmmtoolbox' from a command line to get a list of subcomamnds::
 .. program-output:: swmmtoolbox
 
 Sub-command Detail
-------------------
+''''''''''''''''''
 
 getdata
 ~~~~~~~
@@ -51,7 +51,3 @@ Author
 Tim Cera, P.E.
 
 tim at cerazone dot net
-
-Please send me a note if you find this useful, found a bug, submit a patch,
-...etc.
-

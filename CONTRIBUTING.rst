@@ -80,12 +80,11 @@ Ready to contribute? Here's how to set up `swmmtoolbox` for local development.
 
 Now you can make your changes locally.
 
-6. When you're done making changes, check that your changes pass flake8 and the
-tests, including testing other Python versions with tox::
+6. When you're done making changes, check that your changes pass flake8 and the tests, including testing other Python versions with tox::
 
     $ tox
 
-Bring the htmlcov/index.html file up into a browser to make sure that the code has appropriate test coverage.
+   Bring the htmlcov/index.html file up into a browser to make sure that the code has appropriate test coverage.
 
 7. Commit your changes and push your branch to bitbucket::
 

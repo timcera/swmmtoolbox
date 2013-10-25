@@ -385,7 +385,8 @@ def getdata(filename, *labels):
             result = result.join(jtsd)
         except NameError:
             result = jtsd
-    tsutils.printiso(result)
+    return tsutils.printiso(result)
+
 
 
 def main():

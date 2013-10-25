@@ -337,4 +337,5 @@ def getdata(filename, *labels):
 
 
 def main():
+    sys.tracebacklimit = 0
     baker.run()

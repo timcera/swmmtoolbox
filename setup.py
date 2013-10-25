@@ -13,7 +13,7 @@ install_requires = [
     # For more details, see:
     # http://packages.python.org/distribute/setuptools.html#declaring-dependencies
     'baker >= 1.3',
-    'python-dateutil >= 1.5',    # python-dateutil-2.0 is for Python 3.0
+    'python-dateutil >= 2.1',
     'pandas >= 0.9.0',
     'tstoolbox >= 0.5',
     'construct >= 2.0.6',

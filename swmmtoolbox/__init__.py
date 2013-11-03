@@ -9,6 +9,7 @@ Reads and formats data from the SWMM 5 output file.
 import sys
 import struct
 import datetime
+import os
 
 import baker
 import pandas as pd
@@ -286,6 +287,7 @@ class SwmmExtract():
 @baker.command
 def list(filename, itemtype=''):
     ''' List objects in output file
+
     :param filename: Filename of SWMM output file.
     '''
     obj = SwmmExtract(filename)
@@ -303,6 +305,7 @@ def list(filename, itemtype=''):
 @baker.command
 def listdetail(filename, itemtype, name=''):
     ''' List nodes and metadata in output file
+
     :param filename: Filename of SWMM output file.
     :param itemtype: Type to print out the table of
         (subcatchment, node, or link)
@@ -335,6 +338,7 @@ def listdetail(filename, itemtype, name=''):
 def listvariables(filename):
     ''' List variables available for each type
         (subcatchment, node, link, pollutant, system)
+
     :param filename: Filename of SWMM output file.
     '''
     obj = SwmmExtract(filename)
@@ -348,6 +352,7 @@ def listvariables(filename):
 @baker.command
 def getdata(filename, *labels):
     ''' Get the time series data for a particular object and variable
+
     :param filename: Filename of SWMM output file.
     :param labels: The remaining arguments uniquely identify a time-series
         in the binary file.  The format is
@@ -388,7 +393,7 @@ def getdata(filename, *labels):
     return tsutils.printiso(result)
 
 
-
 def main():
-    sys.tracebacklimit = 0
+    if not os.path.exists('debug_swmmtoolbox'):
+        sys.tracebacklimit = 0
     baker.run()

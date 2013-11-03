@@ -236,7 +236,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'swmmtoolbox', 'SWMMToolbox Documentation',
-   'Tim Cera', 'SWMMToolbox', 'One line description of project.',
+   'Tim Cera', 'SWMMToolbox', 'Dump data from SWMM5 binary output files.',
    'Miscellaneous'),
 ]
 

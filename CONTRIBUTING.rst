@@ -78,7 +78,7 @@ Ready to contribute? Here's how to set up `swmmtoolbox` for local development.
 
     $ git checkout -b name-of-your-bugfix-or-feature
 
-Now you can make your changes locally.
+   Now you can make your changes locally.
 
 6. When you're done making changes, check that your changes pass flake8 and the tests, including testing other Python versions with tox::
 

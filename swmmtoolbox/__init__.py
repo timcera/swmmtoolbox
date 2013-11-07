@@ -350,6 +350,47 @@ def listvariables(filename):
 
 
 @baker.command
+def stdtoswmm5(start_date=None, end_date=None, input_ts='-'):
+    ''' Take the toolbox standard format and return SWMM5 format.
+
+    Toolbox standard:
+    Datetime, Column_Name
+    2000-01-01 00:00:00 ,  45.6
+    2000-01-01 01:00:00 ,  45.2
+    ...
+
+    SWMM5 format:
+    ; comment line
+    01/01/2000 00:00, 45.6
+    01/01/2000 01:00, 45.2
+    ...
+
+    :param input_ts: Filename with data in 'ISOdate,value' format or '-' for
+        stdin.  Default is stdin.
+    :param start_date: The start_date of the series in ISOdatetime format, or
+        'None' for beginning.
+    :param end_date: The end_date of the series in ISOdatetime format, or
+        'None' for end.
+    '''
+    import sys
+    sys.tracebacklimit = 1000
+    tsd = tsutils.read_iso_ts(input_ts)[start_date:end_date]
+    try:
+        # Header
+        print(';Datetime,', ', '.join(str(i) for i in tsd.columns))
+
+        # Data
+        for i in range(len(tsd)):
+            record = tsd.index[i]
+            print('{0:02}/{1:02}/{2:04} {3:02}:00'.format(
+                record.month, record.day, record.year, record.hour),
+                ', ', ', '.join(
+                    tsutils._isfinite(j) for j in tsd.values[i]))
+    except IOError:
+        return
+
+
+@baker.command
 def getdata(filename, *labels):
     ''' Get the time series data for a particular object and variable
 

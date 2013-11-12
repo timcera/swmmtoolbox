@@ -404,7 +404,7 @@ def stdtoswmm5(start_date=None, end_date=None, input_ts='-'):
             record = tsd.index[i]
             print('{0:02}/{1:02}/{2:04} {3:02}:00'.format(
                 record.month, record.day, record.year, record.hour),
-                ', ', ', '.join(
+                ' ', ' '.join(
                     tsutils._isfinite(j) for j in tsd.values[i]))
     except IOError:
         return

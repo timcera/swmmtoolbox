@@ -1,4 +1,3 @@
-
 from __future__ import print_function
 
 # Example package with a console entry point
@@ -64,8 +63,6 @@ VARCODE = {0: {0: 'Rainfall',
                2: 'Flow_velocity',
                3: 'Froude_number',
                4: 'Capacity',
-               },
-           3: {0: 'Concentration',  # Pollutant - not sure will use
                },
            4: {0: 'Air_temperature',
                1: 'Rainfall',
@@ -133,7 +130,6 @@ class SwmmExtract():
         number_list = [self.nsubcatch,
                        self.nnodes,
                        self.nlinks,
-                       self.npolluts,
                        self.npolluts]
         for i, j in enumerate(number_list):
             for k in range(j):
@@ -142,6 +138,16 @@ class SwmmExtract():
                 self.names[i].append(
                     struct.unpack('{0}s'.format(stringsize),
                                   self.fp.read(stringsize))[0])
+
+        # Stupid Python 3
+        for key in self.names:
+            collect_names = []
+            for name in self.names[key]:
+                try:
+                    collect_names.append(name.decode())
+                except AttributeError:
+                    collect_names.append(name)
+            self.names[key] = collect_names
 
         # Read pollutant concentration codes
         # = Number of pollutants * 4 byte integers
@@ -221,10 +227,12 @@ class SwmmExtract():
 
         # Calculate the bytes for each time period when
         # reading the computed results
-        self.bytesperperiod = 2*self.RECORDSIZE + self.RECORDSIZE*(
-            self.nsubcatch*(self.nsubcatchvars + self.npolluts) +
-            self.nnodes*(self.nnodevars + self.npolluts) +
-            self.nlinks*(self.nlinkvars + self.npolluts) + self.nsystemvars)
+        self.bytesperperiod = self.RECORDSIZE*(
+            2 + (
+                self.nsubcatch*(self.nsubcatchvars) +
+                self.nnodes*(self.nnodevars) +
+                self.nlinks*(self.nlinkvars) +
+                self.nsystemvars))
 
     def TypeCheck(self, itemtype):
         if itemtype in [0, 1, 2, 3, 4]:
@@ -343,10 +351,22 @@ def listvariables(filename):
     '''
     obj = SwmmExtract(filename)
     print('TYPE, DESCRIPTION, VARINDEX')
-    for itemtype in ['subcatchment', 'node', 'link', 'pollutant', 'system']:
+    # 'pollutant' really isn't it's own itemtype
+    # but part of subcatchement, node, and link...
+    for itemtype in ['subcatchment', 'node', 'link', 'system']:
         typenumber = obj.TypeCheck(itemtype)
+        start = len(VARCODE[typenumber])
+        end = start + len(obj.names[3])
+        nlabels = range(start, end)
+        ndict = dict(zip(nlabels, obj.names[3]))
+        VARCODE[typenumber].update(ndict)
         for i in obj.vars[typenumber]:
-            print('{0},{1},{2}'.format(itemtype, VARCODE[typenumber][i], i))
+            try:
+                print('{0},{1},{2}'.format(itemtype,
+                    VARCODE[typenumber][i].decode(), i))
+            except (TypeError, AttributeError):
+                print('{0},{1},{2}'.format(itemtype,
+                    str(VARCODE[typenumber][i]), str(i)))
 
 
 @baker.command
@@ -410,8 +430,16 @@ def getdata(filename, *labels):
         typenumber = obj.TypeCheck(itemtype)
         if itemtype != 'system':
             name = obj.NameCheck(itemtype, name)[0]
-        begindate = datetime.datetime(1899, 12, 30)
 
+        # This is the band-aid for correctly reading in
+        # pollutants... replace with something cleaner...
+        start = len(VARCODE[typenumber])
+        end = start + len(obj.names[3])
+        nlabels = range(start, end)
+        ndict = dict(zip(nlabels, obj.names[3]))
+        VARCODE[typenumber].update(ndict)
+
+        begindate = datetime.datetime(1899, 12, 30)
         dates = []
         values = []
         for time in range(obj.nperiods):

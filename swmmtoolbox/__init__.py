@@ -81,6 +81,16 @@ VARCODE = {0: {0: 'Rainfall',
                }
            }
 
+# FLOWUNITS is here, but currently not used.
+FLOWUNITS = {
+    0: 'CFS',
+    1: 'GPM',
+    2: 'MGD',
+    3: 'CMS',
+    4: 'LPS',
+    5: 'LPD'
+    }
+
 
 class SwmmExtract():
     def __init__(self, filename):
@@ -228,11 +238,11 @@ class SwmmExtract():
         # Calculate the bytes for each time period when
         # reading the computed results
         self.bytesperperiod = self.RECORDSIZE*(
-            2 + (
-                self.nsubcatch*(self.nsubcatchvars) +
-                self.nnodes*(self.nnodevars) +
-                self.nlinks*(self.nlinkvars) +
-                self.nsystemvars))
+            2 +
+            self.nsubcatch*self.nsubcatchvars +
+            self.nnodes*self.nnodevars +
+            self.nlinks*self.nlinkvars +
+            self.nsystemvars)
 
     def TypeCheck(self, itemtype):
         if itemtype in [0, 1, 2, 3, 4]:
@@ -269,21 +279,21 @@ class SwmmExtract():
 
         if itemtype == 0:
             offset = offset + self.RECORDSIZE*(
-                itemindex*(self.nsubcatchvars + self.npolluts))
+                itemindex*self.nsubcatchvars)
         if itemtype == 1:
             offset = offset + self.RECORDSIZE*(
-                self.nsubcatch*(self.nsubcatchvars + self.npolluts) +
-                itemindex*(self.nnodevars + self.npolluts))
+                self.nsubcatch*self.nsubcatchvars +
+                itemindex*self.nnodevars)
         elif itemtype == 2:
             offset = offset + self.RECORDSIZE*(
-                self.nsubcatch*(self.nsubcatchvars + self.npolluts) +
-                self.nnodes*(self.nnodevars + self.npolluts) +
-                itemindex*(self.nlinkvars + self.npolluts))
+                self.nsubcatch*self.nsubcatchvars +
+                self.nnodes*self.nnodevars +
+                itemindex*self.nlinkvars)
         elif itemtype == 4:
             offset = offset + self.RECORDSIZE*(
-                self.nsubcatch*(self.nsubcatchvars + self.npolluts) +
-                self.nnodes*(self.nnodevars + self.npolluts) +
-                self.nlinks*(self.nlinkvars + self.npolluts))
+                self.nsubcatch*self.nsubcatchvars +
+                self.nnodes*self.nnodevars +
+                self.nlinks*self.nlinkvars)
 
         offset = offset + self.RECORDSIZE*variableindex
 
@@ -352,7 +362,7 @@ def listvariables(filename):
     obj = SwmmExtract(filename)
     print('TYPE, DESCRIPTION, VARINDEX')
     # 'pollutant' really isn't it's own itemtype
-    # but part of subcatchement, node, and link...
+    # but part of subcatchment, node, and link...
     for itemtype in ['subcatchment', 'node', 'link', 'system']:
         typenumber = obj.TypeCheck(itemtype)
         start = len(VARCODE[typenumber])
@@ -363,10 +373,10 @@ def listvariables(filename):
         for i in obj.vars[typenumber]:
             try:
                 print('{0},{1},{2}'.format(itemtype,
-                    VARCODE[typenumber][i].decode(), i))
+                      VARCODE[typenumber][i].decode(), i))
             except (TypeError, AttributeError):
                 print('{0},{1},{2}'.format(itemtype,
-                    str(VARCODE[typenumber][i]), str(i)))
+                      str(VARCODE[typenumber][i]), str(i)))
 
 
 @baker.command

@@ -393,6 +393,7 @@ def stdtoswmm5(start_date=None, end_date=None, input_ts='-'):
         'None' for end.
     '''
     import sys
+    import csv
     sys.tracebacklimit = 1000
     tsd = tsutils.read_iso_ts(input_ts)[start_date:end_date]
     try:
@@ -400,12 +401,14 @@ def stdtoswmm5(start_date=None, end_date=None, input_ts='-'):
         print(';Datetime,', ', '.join(str(i) for i in tsd.columns))
 
         # Data
-        for i in range(len(tsd)):
-            record = tsd.index[i]
-            print('{0:02}/{1:02}/{2:04} {3:02}:00'.format(
-                record.month, record.day, record.year, record.hour),
-                ' ', ' '.join(
-                    tsutils._isfinite(j) for j in tsd.values[i]))
+        cols = tsd.columns.tolist()
+        tsd['date_tmp_tstoolbox'] = tsd.index.format(formatter=lambda x:
+                x.strftime('%m/%d/%Y'))
+        tsd['time_tmp_tstoolbox'] = tsd.index.format(formatter=lambda x:
+                x.strftime('%H:%M:%S'))
+        tsd.to_csv(sys.stdout, float_format='%g', header=False, index=False,
+                cols=['date_tmp_tstoolbox', 'time_tmp_tstoolbox'] + cols,
+                sep=' ', quoting=csv.QUOTE_NONE)
     except IOError:
         return
 

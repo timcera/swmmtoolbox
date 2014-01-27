@@ -153,10 +153,12 @@ class SwmmExtract():
         for key in self.names:
             collect_names = []
             for name in self.names[key]:
+                # Why would SMMM allow spaces in names?  Anyway...
+                rname = name.replace(chr(0xa0), ' ')
                 try:
-                    collect_names.append(name.decode())
+                    collect_names.append(rname.decode())
                 except AttributeError:
-                    collect_names.append(name)
+                    collect_names.append(rname)
             self.names[key] = collect_names
 
         # Read pollutant concentration codes

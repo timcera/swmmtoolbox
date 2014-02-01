@@ -13,7 +13,7 @@ install_requires = [
     'baker >= 1.3',
     'python-dateutil >= 2.1',
     'pandas >= 0.9.0',
-    'tstoolbox >= 0.5',
+    'tstoolbox >= 0.8',
     'construct >= 2.5',
 ]
 
@@ -39,7 +39,6 @@ setup(name='swmmtoolbox',
       author='Tim Cera, P.E.',
       author_email='tim@cerazone.net',
       url='',
-      license='BSD:3 clause',
       packages=['swmmtoolbox'],
       package_dir={'': '.'},
       include_package_data=True,
@@ -47,6 +46,6 @@ setup(name='swmmtoolbox',
       install_requires=install_requires,
       entry_points={
           'console_scripts':
-              ['swmmtoolbox=swmmtoolbox:main']
+              ['swmmtoolbox=swmmtoolbox.swmmtoolbox:main']
       }
       )

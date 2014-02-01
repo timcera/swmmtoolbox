@@ -1,5 +1,11 @@
 from setuptools import setup
 import os
+import sys
+
+if sys.argv[-1] == 'publish':
+    os.system('python setup.py sdist upload')
+    os.system('python setup.py upload_docs')
+    sys.exit()
 
 here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.rst')).read()

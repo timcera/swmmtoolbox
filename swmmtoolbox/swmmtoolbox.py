@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 from __future__ import print_function
 
 # Example package with a console entry point
@@ -483,4 +481,3 @@ def main():
     if not os.path.exists('debug_swmmtoolbox'):
         sys.tracebacklimit = 0
     baker.run()
->>>>>>> 7dffab0373726293555b4ae53e7ffd2e0166196b

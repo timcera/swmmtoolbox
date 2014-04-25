@@ -415,18 +415,25 @@ def stdtoswmm5(start_date=None, end_date=None, input_ts='-'):
         # Data
         cols = tsd.columns.tolist()
         tsd['date_tmp_tstoolbox'] = tsd.index.format(formatter=lambda x:
-                x.strftime('%m/%d/%Y'))
+                                                     x.strftime('%m/%d/%Y'))
         tsd['time_tmp_tstoolbox'] = tsd.index.format(formatter=lambda x:
-                x.strftime('%H:%M:%S'))
+                                                     x.strftime('%H:%M:%S'))
         tsd.to_csv(sys.stdout, float_format='%g', header=False, index=False,
-                cols=['date_tmp_tstoolbox', 'time_tmp_tstoolbox'] + cols,
-                sep=' ', quoting=csv.QUOTE_NONE)
+                   cols=['date_tmp_tstoolbox', 'time_tmp_tstoolbox'] + cols,
+                   sep=' ', quoting=csv.QUOTE_NONE)
     except IOError:
         return
 
 
 @baker.command
 def getdata(filename, *labels):
+    ''' DEPRECATED: Use 'extract' instead.
+    '''
+    return extract(filename, *labels)
+
+
+@baker.command
+def extract(filename, *labels):
     ''' Get the time series data for a particular object and variable
 
     :param filename: Filename of SWMM output file.

@@ -20,7 +20,6 @@ install_requires = [
     'python-dateutil >= 2.1',
     'pandas >= 0.9.0',
     'tstoolbox >= 0.8',
-    'construct >= 2.5',
 ]
 
 setup(name='swmmtoolbox',

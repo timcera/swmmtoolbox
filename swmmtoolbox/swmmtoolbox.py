@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 
 # Example package with a console entry point
 """
@@ -154,7 +154,7 @@ class SwmmExtract():
             collect_names = []
             for name in self.names[key]:
                 # Why would SMMM allow spaces in names?  Anyway...
-                rname = name.replace(chr(0xa0), ' ')
+                rname = name.replace(chr(0xa0), b' ')
                 try:
                     collect_names.append(rname.decode())
                 except AttributeError:
@@ -177,7 +177,7 @@ class SwmmExtract():
             rprops = struct.unpack(
                 '{0}f'.format(nsubprop),
                 self.fp.read(nsubprop*self.RECORDSIZE))
-            self.prop[0].append(zip(self.propcode[0], rprops))
+            self.prop[0].append(list(zip(self.propcode[0], rprops)))
 
         nnodeprop = struct.unpack('i', self.fp.read(self.RECORDSIZE))[0]
         self.propcode[1] = struct.unpack(
@@ -187,7 +187,7 @@ class SwmmExtract():
             rprops = struct.unpack(
                 'i{0}f'.format(nnodeprop - 1),
                 self.fp.read(nnodeprop*self.RECORDSIZE))
-            self.prop[1].append(zip(self.propcode[1], rprops))
+            self.prop[1].append(list(zip(self.propcode[1], rprops)))
 
         nlinkprop = struct.unpack('i', self.fp.read(self.RECORDSIZE))[0]
         self.propcode[2] = struct.unpack(
@@ -197,7 +197,7 @@ class SwmmExtract():
             rprops = struct.unpack(
                 'i{0}f'.format(nlinkprop - 1),
                 self.fp.read(nlinkprop*self.RECORDSIZE))
-            self.prop[2].append(zip(self.propcode[2], rprops))
+            self.prop[2].append(list(zip(self.propcode[2], rprops)))
 
         self.vars = {}
         self.nsubcatchvars = struct.unpack(
@@ -315,7 +315,7 @@ def list(filename, itemtype=''):
         typenumber = obj.TypeCheck(itemtype)
         plist = [typenumber]
     else:
-        plist = range(len(obj.itemlist))
+        plist = list(range(len(obj.itemlist)))
     print('TYPE, NAME')
     for i in plist:
         for oname in obj.names[i]:
@@ -369,8 +369,8 @@ def listvariables(filename):
         typenumber = obj.TypeCheck(itemtype)
         start = len(VARCODE[typenumber])
         end = start + len(obj.names[3])
-        nlabels = range(start, end)
-        ndict = dict(zip(nlabels, obj.names[3]))
+        nlabels = list(range(start, end))
+        ndict = dict(list(zip(nlabels, obj.names[3])))
         VARCODE[typenumber].update(ndict)
         for i in obj.vars[typenumber]:
             try:
@@ -457,8 +457,8 @@ def extract(filename, *labels):
         # pollutants... replace with something cleaner...
         start = len(VARCODE[typenumber])
         end = start + len(obj.names[3])
-        nlabels = range(start, end)
-        ndict = dict(zip(nlabels, obj.names[3]))
+        nlabels = list(range(start, end))
+        ndict = dict(list(zip(nlabels, obj.names[3])))
         VARCODE[typenumber].update(ndict)
 
         begindate = datetime.datetime(1899, 12, 30)

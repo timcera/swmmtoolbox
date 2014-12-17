@@ -10,6 +10,8 @@ Tests for `swmmtoolbox` module.
 import shlex
 import subprocess
 import os
+import six
+
 from pandas.util.testing import TestCase
 from pandas.util.testing import assert_frame_equal, assert_equal
 import sys
@@ -24,7 +26,7 @@ from swmmtoolbox import swmmtoolbox
 
 
 def capture(func, *args, **kwds):
-    sys.stdout = StringIO()      # capture output
+    sys.stdout = StringIO()      # capture outputA
     out = func(*args, **kwds)
     out = sys.stdout.getvalue()  # release output
     try:
@@ -42,14 +44,13 @@ class TestListdetail(TestCase):
         listdetail_link_fname = os.path.join('tests', 'listdetail_link.csv')
         self.listdetail_link = open(listdetail_link_fname).readlines()
 
-
     def test_listdetail_node(self):
         out = capture(swmmtoolbox.listdetail, os.path.join('tests', 'frutal.out'), 'node')
         self.maxDiff = None
-        assert_equal(out, ''.join(self.listdetail_node))
+        assert_equal(out, six.b(''.join(self.listdetail_node)))
 
     def test_listdetail_link(self):
         out = capture(swmmtoolbox.listdetail, os.path.join('tests', 'frutal.out'), 'link')
         self.maxDiff = None
-        assert_equal(out, ''.join(self.listdetail_link))
+        assert_equal(out, six.b(''.join(self.listdetail_link)))
 

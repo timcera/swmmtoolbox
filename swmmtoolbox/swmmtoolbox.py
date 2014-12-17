@@ -1,48 +1,51 @@
 
-
 # Example package with a console entry point
 """
 Reads and formats data from the SWMM 5 output file.
 """
+from __future__ import absolute_import
+from __future__ import print_function
 
 import sys
 import struct
 import datetime
 import os
 
-import baker
+import mando
 import pandas as pd
+from six.moves import range
+from six.moves import zip
 
 from tstoolbox import tsutils
 
 PROPCODE = {0: {1: 'Area',
-                },
+               },
             1: {0: 'Type',
                 2: 'Inv_elev',
                 3: 'Max_depth'
-                },
+               },
             2: {0: 'Type',
                 4: 'Inv_offset',
                 3: 'Max_depth',
                 5: 'Length'
-                }
-            }
+               }
+           }
 
 # Names for the 'Node type' and 'Link type' codes above
 TYPECODE = {0: {1: 'Area',
-                },
+               },
             1: {0: 'Junction',  # nodes
                 1: 'Outfall',
                 2: 'Storage',
                 3: 'Divider'
-                },
+               },
             2: {0: 'Conduit',   # links
                 1: 'Pump',
                 2: 'Orifice',
                 3: 'Weir',
                 4: 'Outlet'
-                }
-            }
+               }
+           }
 
 VARCODE = {0: {0: 'Rainfall',
                1: 'Snow_depth',
@@ -50,20 +53,20 @@ VARCODE = {0: {0: 'Rainfall',
                3: 'Runoff_rate',
                4: 'Groundwater_outflow',
                5: 'Groundwater_elevation'
-               },
+              },
            1: {0: 'Depth_above_invert',
                1: 'Hydraulic_head',
                2: 'Volume_stored_ponded',
                3: 'Lateral_inflow',
                4: 'Total_inflow',
                5: 'Flow_lost_flooding',
-               },
+              },
            2: {0: 'Flow_rate',
                1: 'Flow_depth',
                2: 'Flow_velocity',
                3: 'Froude_number',
                4: 'Capacity',
-               },
+              },
            4: {0: 'Air_temperature',
                1: 'Rainfall',
                2: 'Snow_depth',
@@ -78,8 +81,8 @@ VARCODE = {0: {0: 'Rainfall',
                11: 'Flow_leaving_outfalls',
                12: 'Volume_stored_water',
                13: 'Evaporation_rate',
-               }
-           }
+              }
+          }
 
 # FLOWUNITS is here, but currently not used.
 FLOWUNITS = {
@@ -154,7 +157,10 @@ class SwmmExtract():
             collect_names = []
             for name in self.names[key]:
                 # Why would SMMM allow spaces in names?  Anyway...
-                rname = name.replace(chr(0xa0), b' ')
+                try:
+                    rname = str(name, 'ascii', 'replace')
+                except TypeError:
+                    rname = name.decode('ascii', 'replace')
                 try:
                     collect_names.append(rname.decode())
                 except AttributeError:
@@ -304,9 +310,9 @@ class SwmmExtract():
         return (date, value)
 
 
-@baker.command
-def list(filename, itemtype=''):
-    ''' List objects in output file
+@mando.command
+def catalog(filename, itemtype=''):
+    ''' List the catalog of objects in output file
 
     :param filename: Filename of SWMM output file.
     '''
@@ -322,7 +328,7 @@ def list(filename, itemtype=''):
             print('{0},{1}'.format(obj.itemlist[i], oname))
 
 
-@baker.command
+@mando.command
 def listdetail(filename, itemtype, name=''):
     ''' List nodes and metadata in output file
 
@@ -354,7 +360,7 @@ def listdetail(filename, itemtype, name=''):
         print(fmtstr.format(*tuple(printvar)))
 
 
-@baker.command
+@mando.command
 def listvariables(filename):
     ''' List variables available for each type
         (subcatchment, node, link, pollutant, system)
@@ -375,13 +381,15 @@ def listvariables(filename):
         for i in obj.vars[typenumber]:
             try:
                 print('{0},{1},{2}'.format(itemtype,
-                      VARCODE[typenumber][i].decode(), i))
+                                           VARCODE[typenumber][i].decode(),
+                                           i))
             except (TypeError, AttributeError):
                 print('{0},{1},{2}'.format(itemtype,
-                      str(VARCODE[typenumber][i]), str(i)))
+                                           str(VARCODE[typenumber][i]),
+                                           str(i)))
 
 
-@baker.command
+@mando.command
 def stdtoswmm5(start_date=None, end_date=None, input_ts='-'):
     ''' Take the toolbox standard format and return SWMM5 format.
 
@@ -404,7 +412,6 @@ def stdtoswmm5(start_date=None, end_date=None, input_ts='-'):
     :param end_date: The end_date of the series in ISOdatetime format, or
         'None' for end.
     '''
-    import sys
     import csv
     sys.tracebacklimit = 1000
     tsd = tsutils.read_iso_ts(input_ts)[start_date:end_date]
@@ -425,14 +432,14 @@ def stdtoswmm5(start_date=None, end_date=None, input_ts='-'):
         return
 
 
-@baker.command
+@mando.command
 def getdata(filename, *labels):
     ''' DEPRECATED: Use 'extract' instead.
     '''
     return extract(filename, *labels)
 
 
-@baker.command
+@mando.command
 def extract(filename, *labels):
     ''' Get the time series data for a particular object and variable
 
@@ -487,4 +494,4 @@ def extract(filename, *labels):
 def main():
     if not os.path.exists('debug_swmmtoolbox'):
         sys.tracebacklimit = 0
-    baker.run()
+    mando.main()

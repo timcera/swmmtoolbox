@@ -27,7 +27,7 @@ Requirements
 ============
 Python - of course
 
-The 'baker' library which should have been installed as a requirement.
+The 'mando' library which should have been installed as a requirement.
 
 The 'tstoolbox' library and command line tool which should have been installed
 as a requirement.

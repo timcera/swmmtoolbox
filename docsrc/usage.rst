@@ -17,7 +17,7 @@ extract
  
 list
 ~~~~
-.. program-output:: swmmtoolbox list --help
+.. program-output:: swmmtoolbox catalog --help
 
 listdetail
 ~~~~~~~~~~

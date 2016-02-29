@@ -454,6 +454,7 @@ def extract(filename, *labels):
             'swmmtoolbox listvariables filename.out'
     '''
     obj = SwmmExtract(filename)
+    jtsd = []
     for label in labels:
         itemtype, name, variableindex = label.split(',')
         typenumber = obj.TypeCheck(itemtype)
@@ -480,14 +481,11 @@ def extract(filename, *labels):
                 days=days, seconds=seconds)
             dates.append(date)
             values.append(value)
-        jtsd = pd.DataFrame(
+        jtsd.append(pd.DataFrame(
             pd.Series(values, index=dates),
             columns=['{0}_{1}_{2}'.format(
-                itemtype, name, VARCODE[typenumber][int(variableindex)])])
-        try:
-            result = result.join(jtsd)
-        except NameError:
-            result = jtsd
+                itemtype, name, VARCODE[typenumber][int(variableindex)])]))
+    result = pd.concat(jtsd, axis=1, join_axes=[jtsd[0].index])
     return tsutils.printiso(result)
 
 

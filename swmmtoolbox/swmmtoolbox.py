@@ -176,7 +176,11 @@ class SwmmExtract():
             self.nlinks, \
             self.npolluts = struct.unpack('6i',
                                           self.fp.read(6*self.RECORDSIZE))
-        print version
+        if version < 5100:
+          self.varcode = VARCODE_old
+        else:
+          self.varcode = VARCODE
+
         self.itemlist = ['subcatchment', 'node', 'link', 'pollutant', 'system']
 
         # Read in the names
@@ -293,6 +297,13 @@ class SwmmExtract():
             self.nnodes*self.nnodevars +
             self.nlinks*self.nlinkvars +
             self.nsystemvars)
+
+    def UpdateVarCode(self, typenumber):
+        start   = len(self.varcode[typenumber])
+        end     = start + len(self.names[3])
+        nlabels = list(range(start, end))
+        ndict   = dict(list(zip(nlabels, self.names[3])))
+        self.varcode[typenumber].update(ndict)
 
     def TypeCheck(self, itemtype):
         if itemtype in [0, 1, 2, 3, 4]:
@@ -419,20 +430,16 @@ def listvariables(filename):
     for itemtype in ['subcatchment', 'node', 'link', 'system']:
         typenumber = obj.TypeCheck(itemtype)
 
-        start   = len(VARCODE[typenumber])
-        end     = start + len(obj.names[3])
-        nlabels = list(range(start, end))
-        ndict   = dict(list(zip(nlabels, obj.names[3])))
-        VARCODE[typenumber].update(ndict)
+        obj.UpdateVarCode(typenumber)
 
         for i in obj.vars[typenumber]:
             try:
                 print('{0},{1},{2}'.format(itemtype,
-                                           VARCODE[typenumber][i].decode(),
+                                           obj.varcode[typenumber][i].decode(),
                                            i))
             except (TypeError, AttributeError):
                 print('{0},{1},{2}'.format(itemtype,
-                                           str(VARCODE[typenumber][i]),
+                                           str(obj.varcode[typenumber][i]),
                                            str(i)))
 
 
@@ -508,13 +515,7 @@ def extract(filename, *labels):
         if itemtype != 'system':
             name = obj.NameCheck(itemtype, name)[0]
 
-        # This is the band-aid for correctly reading in
-        # pollutants... replace with something cleaner...
-        start   = len(VARCODE[typenumber])
-        end     = start + len(obj.names[3])
-        nlabels = list(range(start, end))
-        ndict   = dict(list(zip(nlabels, obj.names[3])))
-        VARCODE[typenumber].update(ndict)
+        obj.UpdateVarCode(typenumber)
 
         begindate = datetime.datetime(1899, 12, 30)
         dates = []
@@ -531,7 +532,7 @@ def extract(filename, *labels):
         jtsd.append(pd.DataFrame(
             pd.Series(values, index=dates),
             columns=['{0}_{1}_{2}'.format(
-                itemtype, name, VARCODE[typenumber][int(variableindex)])]))
+                itemtype, name, obj.varcode[typenumber][int(variableindex)])]))
     result = pd.concat(jtsd, axis=1, join_axes=[jtsd[0].index])
     return tsutils.printiso(result)
 

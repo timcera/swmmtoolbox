@@ -84,9 +84,9 @@ VARCODE = {0: {0: 'Rainfall',
                11: 'Flow_leaving_outfalls',
                12: 'Volume_stored_water',
                13: 'Evaporation_rate',
+               14: 'Potential_PET',
               }
           }
-
 # FLOWUNITS is here, but currently not used.
 FLOWUNITS = {
     0: 'CFS',

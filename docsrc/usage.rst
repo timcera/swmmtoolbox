@@ -2,11 +2,11 @@
 Usage
 =====
 
-Just run 'swmmtoolbox' from a command line to get a list of subcommands::
+Just run "swmmtoolbox --help" from a command line to get a list of subcommands::
 
-    swmmtoolbox
+    swmmtoolbox --help
 
-.. program-output:: swmmtoolbox
+.. program-output:: swmmtoolbox --help
 
 Sub-command Detail
 ''''''''''''''''''

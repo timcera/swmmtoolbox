@@ -49,10 +49,52 @@ TYPECODE = {0: {1: 'Area',
 
 VARCODE = {0: {0: 'Rainfall',
                1: 'Snow_depth',
-               2: 'Evaporation',
+               2: 'Evaporation_loss',
+               3: 'Infiltration_loss',
+               4: 'Runoff_rate',
+               5: 'Groundwater_outflow',
+               6: 'Groundwater_elevation',
+               7: 'Soil_moisture',
+               8: 'Pollutant_washoff',
+              },
+           1: {0: 'Depth_above_invert',
+               1: 'Hydraulic_head',
+               2: 'Volume_stored_ponded',
+               3: 'Lateral_inflow',
+               4: 'Total_inflow',
+               5: 'Flow_lost_flooding',
+              },
+           2: {0: 'Flow_rate',
+               1: 'Flow_depth',
+               2: 'Flow_velocity',
+               3: 'Froude_number',
+               4: 'Capacity',
+              },
+           4: {0: 'Air_temperature',
+               1: 'Rainfall',
+               2: 'Snow_depth',
+               3: 'Evaporation_infiltration',
+               4: 'Runoff',
+               5: 'Dry_weather_inflow',
+               6: 'Groundwater_inflow',
+               7: 'RDII_inflow',
+               8: 'User_direct_inflow',
+               9: 'Total_lateral_inflow',
+               10: 'Flow_lost_to_flooding',
+               11: 'Flow_leaving_outfalls',
+               12: 'Volume_stored_water',
+               13: 'Evaporation_rate',
+               14: 'Potential_PET',
+              }
+          }
+
+# Prior to 5.10.10
+VARCODE_old = {0: {0: 'Rainfall',
+               1: 'Snow_depth',
+               2: 'Evaporation_loss',
                3: 'Runoff_rate',
                4: 'Groundwater_outflow',
-               5: 'Groundwater_elevation'
+               5: 'Groundwater_elevation',
               },
            1: {0: 'Depth_above_invert',
                1: 'Hydraulic_head',
@@ -134,6 +176,10 @@ class SwmmExtract():
             self.nlinks, \
             self.npolluts = struct.unpack('6i',
                                           self.fp.read(6*self.RECORDSIZE))
+        if version < 5100:
+          self.varcode = VARCODE_old
+        else:
+          self.varcode = VARCODE
 
         self.itemlist = ['subcatchment', 'node', 'link', 'pollutant', 'system']
 
@@ -252,6 +298,13 @@ class SwmmExtract():
             self.nlinks*self.nlinkvars +
             self.nsystemvars)
 
+    def UpdateVarCode(self, typenumber):
+        start   = len(self.varcode[typenumber])
+        end     = start + len(self.names[3])
+        nlabels = list(range(start, end))
+        ndict   = dict(list(zip(nlabels, self.names[3])))
+        self.varcode[typenumber].update(ndict)
+
     def TypeCheck(self, itemtype):
         if itemtype in [0, 1, 2, 3, 4]:
             return itemtype
@@ -343,13 +396,16 @@ def listdetail(filename, itemtype, name=''):
         objectlist = [obj.NameCheck(itemtype, name)[0]]
     else:
         objectlist = obj.names[typenumber]
+
     propnumbers = obj.propcode[typenumber]
-    headstr = ['#Name'] + [PROPCODE[typenumber][i] for i in propnumbers]
-    headfmtstr = '{0:<25},{1:<8},' + ','.join(
+    headstr     = ['#Name'] + [PROPCODE[typenumber][i] for i in propnumbers]
+    headfmtstr  = '{0:<25},{1:<8},' + ','.join(
         ['{'+str(i)+':>10}' for i in range(2, 1+len(propnumbers))])
+
     print(headfmtstr.format(*tuple(headstr)))
     fmtstr = '{0:<25},{1:<8},' + ','.join(
         ['{'+str(i)+':10.2f}' for i in range(2, 1+len(propnumbers))])
+
     for i, oname in enumerate(objectlist):
         printvar = [oname]
         for j in obj.prop[typenumber][i]:
@@ -373,19 +429,17 @@ def listvariables(filename):
     # but part of subcatchment, node, and link...
     for itemtype in ['subcatchment', 'node', 'link', 'system']:
         typenumber = obj.TypeCheck(itemtype)
-        start = len(VARCODE[typenumber])
-        end = start + len(obj.names[3])
-        nlabels = list(range(start, end))
-        ndict = dict(list(zip(nlabels, obj.names[3])))
-        VARCODE[typenumber].update(ndict)
+
+        obj.UpdateVarCode(typenumber)
+
         for i in obj.vars[typenumber]:
             try:
                 print('{0},{1},{2}'.format(itemtype,
-                                           VARCODE[typenumber][i].decode(),
+                                           obj.varcode[typenumber][i].decode(),
                                            i))
             except (TypeError, AttributeError):
                 print('{0},{1},{2}'.format(itemtype,
-                                           str(VARCODE[typenumber][i]),
+                                           str(obj.varcode[typenumber][i]),
                                            str(i)))
 
 
@@ -461,13 +515,7 @@ def extract(filename, *labels):
         if itemtype != 'system':
             name = obj.NameCheck(itemtype, name)[0]
 
-        # This is the band-aid for correctly reading in
-        # pollutants... replace with something cleaner...
-        start = len(VARCODE[typenumber])
-        end = start + len(obj.names[3])
-        nlabels = list(range(start, end))
-        ndict = dict(list(zip(nlabels, obj.names[3])))
-        VARCODE[typenumber].update(ndict)
+        obj.UpdateVarCode(typenumber)
 
         begindate = datetime.datetime(1899, 12, 30)
         dates = []
@@ -484,7 +532,7 @@ def extract(filename, *labels):
         jtsd.append(pd.DataFrame(
             pd.Series(values, index=dates),
             columns=['{0}_{1}_{2}'.format(
-                itemtype, name, VARCODE[typenumber][int(variableindex)])]))
+                itemtype, name, obj.varcode[typenumber][int(variableindex)])]))
     result = pd.concat(jtsd, axis=1, join_axes=[jtsd[0].index])
     return tsutils.printiso(result)
 

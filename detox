@@ -1,0 +1,46 @@
+#!/bin/bash
+
+program=swmmtoolbox
+
+pkgs="\
+     setuptools \
+     nose \
+     pandas \
+     coverage \
+     flake8 \
+     "
+
+# pandas no longer supports 2.6
+envs=(2.7 3.3 3.4 3.5)
+
+for env in ${envs[@]}; do
+    echo "${env}"
+
+    pew in python${env} << EOT
+    pip install --upgrade ${pkgs}
+    pip install --no-deps --upgrade ../mando/
+    pip uninstall -y ${program}
+    rm -rf build
+    pip install --upgrade --no-deps ../${program}/
+
+    nosetests \
+        --with-doctest \
+        --with-coverage \
+        --cover-tests \
+        --cover-package=${program} \
+        --cover-branches \
+        --cover-erase
+EOT
+done
+
+pew in python3.4 << EOTT
+coverage erase
+coverage run `which nosetests` --with-doctest
+coverage report --include="swmmtoolbox/*" --omit="tests/*"
+coverage html --include="swmmtoolbox/*" --omit="tests/*"
+flake8 swmmtoolbox/__init__.py --exit-zero
+
+cd docsrc
+make clean
+make html
+EOTT

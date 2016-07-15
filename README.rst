@@ -6,15 +6,15 @@
     :target: https://coveralls.io/r/timcera/swmmtoolbox?branch=master
     :height: 20
 
-.. image:: https://pypip.in/v/swmmtoolbox/badge.png?style=flat
+.. image:: https://img.shields.io/pypi/v/swmmtoolbox.svg
     :alt: Latest release
     :target: https://pypi.python.org/pypi/swmmtoolbox
 
-.. image:: https://pypip.in/d/swmmtoolbox/badge.png?style=flat
+.. image:: https://img.shields.io/pypi/dm/swmmtoolbox.svg
     :alt: PyPI downloads count
     :target: https://pypi.python.org/pypi/swmmtoolbox
 
-.. image:: https://pypip.in/license/swmmtoolbox/badge.png?style=flat
+.. image:: http://img.shields.io/badge/license-BSD-lightgrey.svg
     :alt: swmmtoolbox license
     :target: https://pypi.python.org/pypi/swmmtoolbox/
 

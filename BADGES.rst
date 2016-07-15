@@ -17,3 +17,4 @@
 .. image:: http://img.shields.io/badge/license-BSD-lightgrey.svg
     :alt: swmmtoolbox license
     :target: https://pypi.python.org/pypi/swmmtoolbox/
+

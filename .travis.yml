@@ -1,32 +1,23 @@
 language: python
 
 python:
-  - 2.6
   - 2.7
   - 3.3
   - 3.4
+  - 3.5
 
 # Setup anaconda
 before_install:
-  - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
-  - chmod +x miniconda.sh
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - export PATH="$HOME/miniconda/envs/test_env/bin:$HOME/miniconda/bin:$PATH"
-  - hash -r
-  - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
-  # The next couple lines fix a crash with multiprocessing on Travis and are
-  # not specific to using Miniconda
-  - sudo rm -rf /dev/shm
-  - sudo ln -s /run/shm /dev/shm
+  - sudo apt-get -qq update
+  - sudo apt-get install -y liblapack-dev libopenblas-dev
 
 # Install packages
 install:
-  - conda create -q -n $TRAVIS_PYTHON_VERSION python=$TRAVIS_PYTHON_VERSION setuptools atlas numpy scipy matplotlib nose dateutil pandas pip coverage
-
-  - source activate $TRAVIS_PYTHON_VERSION
-  - pip install coveralls mando tstoolbox baker
-  - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install argparse; fi
+  - pip install --upgrade pip
+  - pip install wheel
+  - pip install numpy 
+  - pip install pandas
+  - pip install nose coverage coveralls mando
   - python setup.py install
 
 script:
@@ -35,3 +26,4 @@ script:
 
 after_success:
   - coveralls
+

@@ -541,3 +541,8 @@ def main():
     if not os.path.exists('debug_swmmtoolbox'):
         sys.tracebacklimit = 0
     mando.main()
+
+
+if __name__ == '__main__':
+    main()
+

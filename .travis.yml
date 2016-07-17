@@ -13,6 +13,7 @@ before_install:
 # Install packages
 install:
   - pip install --upgrade pip
+  - pip install wheel
   - pip install coveralls
   - python setup.py install
 

@@ -16,10 +16,11 @@ install_requires = [
     # List your project dependencies here.
     # For more details, see:
     # http://packages.python.org/distribute/setuptools.html#declaring-dependencies
-    'mando',
+    'mando >= 0.4',
     'python-dateutil >= 2.1',
     'pandas >= 0.9.0',
-    'tstoolbox >= 0.8',
+    'tstoolbox >= 0.12.12.8',
+    'sphinx >= 1.3',
 ]
 
 setup(name='swmmtoolbox',

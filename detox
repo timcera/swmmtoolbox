@@ -18,7 +18,6 @@ for env in ${envs[@]}; do
 
     pew in python${env} << EOT
     pip install --upgrade ${pkgs}
-    pip install --no-deps --upgrade ../mando/
     pip uninstall -y ${program}
     rm -rf build
     pip install --upgrade --no-deps ../${program}/

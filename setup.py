@@ -21,6 +21,7 @@ install_requires = [
     'pandas >= 0.9.0',
     'tstoolbox >= 1.12.12.9',
     'sphinx >= 1.3',
+    'six',
 ]
 
 setup(name='swmmtoolbox',

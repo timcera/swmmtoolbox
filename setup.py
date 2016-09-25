@@ -19,7 +19,7 @@ install_requires = [
     'mando >= 0.4',
     'python-dateutil >= 2.1',
     'pandas >= 0.9.0',
-    'tstoolbox >= 0.12.12.8',
+    'tstoolbox >= 1.12.12.9',
     'sphinx >= 1.3',
 ]
 

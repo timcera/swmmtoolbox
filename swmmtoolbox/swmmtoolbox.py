@@ -363,6 +363,13 @@ class SwmmExtract():
         return (date, value)
 
 
+@mando.command()
+def about():
+    """Display version number and system information.
+    """
+    tsutils.about(__name__)
+
+
 @mando.command
 def catalog(filename, itemtype=''):
     ''' List the catalog of objects in output file

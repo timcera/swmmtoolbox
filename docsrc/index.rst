@@ -1,16 +1,15 @@
 .. include:: ../BADGES.rst
-swmmtoolbox Documentation
-=========================
+
+.. _swmmtoolbox_documentation:  
+
+swmmtoolbox
+===========
 
 This is the home page for the 'swmmtoolbox'.  
 
-SWMMToolbox dumps text out of binary files created by the Storm Water Managment Model (SWMM) version 5+.
+swmmtoolbox dumps text out of binary files created by the Storm Water Managment Model (SWMM) version 5+.
 
-SWMMToolbox should work with Python 2.7+ and 3.3+.
-
-Other Work
-----------
-http://timcera.bitbucket.org
+swmmtoolbox should work with Python 2.7+ and 3.3+.
 
 Table of Contents
 -----------------
@@ -19,12 +18,11 @@ Table of Contents
 
    readme
    usage
+   function_summary
    contributing
    license
 
-Indices and tables
-==================
+Other Projects
+--------------
+http://timcera.bitbucket.org
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

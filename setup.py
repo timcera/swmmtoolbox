@@ -4,7 +4,6 @@ import sys
 
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
-    os.system('python setup.py upload_docs')
     sys.exit()
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -16,9 +15,6 @@ install_requires = [
     # List your project dependencies here.
     # For more details, see:
     # http://packages.python.org/distribute/setuptools.html#declaring-dependencies
-    'mando >= 0.4',
-    'python-dateutil >= 2.1',
-    'pandas >= 0.9.0',
     'tstoolbox >= 1.12.12.9',
     'sphinx >= 1.3',
     'six',

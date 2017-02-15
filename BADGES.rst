@@ -10,10 +10,6 @@
     :alt: Latest release
     :target: https://pypi.python.org/pypi/swmmtoolbox
 
-.. image:: https://img.shields.io/pypi/dm/swmmtoolbox.svg
-    :alt: PyPI downloads count
-    :target: https://pypi.python.org/pypi/swmmtoolbox
-
 .. image:: http://img.shields.io/badge/license-BSD-lightgrey.svg
     :alt: swmmtoolbox license
     :target: https://pypi.python.org/pypi/swmmtoolbox/

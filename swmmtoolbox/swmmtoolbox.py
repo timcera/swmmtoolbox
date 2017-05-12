@@ -12,6 +12,7 @@ import datetime
 import os
 
 import mando
+import numpy  as np
 import pandas as pd
 from six.moves import range
 from six.moves import zip

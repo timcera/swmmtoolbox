@@ -362,6 +362,18 @@ class SwmmExtract():
         value = struct.unpack('f', self.fp.read(self.RECORDSIZE))[0]
         return (date, value)
 
+    def GetDates(self):
+        """ Return Start and End Date Tuple """
+        begindate = datetime.datetime(1899, 12, 30)
+        ntimes  = range(self.nperiods)
+        periods = [ntimes[0], ntimes[-1]]
+        st_end  = []
+        for period in periods:
+            date_offset = self.ResultsStartPos + period*self.bytesperperiod
+            self.fp.seek(date_offset, 0)
+            day = struct.unpack('d', self.fp.read(2*self.RECORDSIZE))[0]
+            st_end.append(begindate + datetime.timedelta(days=int(day)))
+        return st_end
 
 @mando.command()
 def about():
@@ -449,6 +461,26 @@ def listvariables(filename):
                                            str(obj.varcode[typenumber][i]),
                                            str(i)))
 
+def getnames(filename, itemtype, kind=False):
+    """ Get Subcatchment, Node or Link Names
+    Essentially subset of listdetail
+    Itemtype = (string) subcatchment, node, link
+    Kind will only return certain type. IE for 'node', 'Outfall', 'Junction' ...
+    """
+    obj = SwmmExtract(filename)
+
+    typenumber = obj.TypeCheck(itemtype)
+    objectlist = obj.names[typenumber]
+    out_list = []
+    if kind:
+        for i, oname in enumerate(objectlist):
+            for j in obj.prop[typenumber][i]:
+                if j[0] == 0:
+                    if TYPECODE[typenumber][j[1]] == kind:
+                        out_list.append(oname)
+        return [int(out) for out in out_list]
+    else:
+        return [int(i) for i in objectlist]
 
 @mando.command
 def stdtoswmm5(start_date=None, end_date=None, input_ts='-'):
@@ -543,7 +575,37 @@ def extract(filename, *labels):
     result = pd.concat(jtsd, axis=1, join_axes=[jtsd[0].index])
     return tsutils.printiso(result)
 
+def extract_arr(filename, *labels):
+    """
+    Same as extract except it returns the raw numpy array.
 
+    :param filename: Filename of SWMM output file.
+    :param labels: The remaining arguments uniquely identify a time-series
+        in the binary file.  The format is
+        'TYPE,NAME,VARINDEX'.
+        For example: 'node,C64,1 node,C63,1 ...'
+        TYPE and NAME can be retrieved with
+            'swmmtoolbox list filename.out'
+        VARINDEX can be retrieved with
+            'swmmtoolbox listvariables filename.out'
+    """
+    obj = SwmmExtract(filename)
+    for label in labels:
+        itemtype, name, variableindex = label.split(',')
+        typenumber = obj.TypeCheck(itemtype)
+        if itemtype != 'system':
+            name = obj.NameCheck(itemtype, name)[0]
+
+        obj.UpdateVarCode(typenumber)
+
+        data = np.zeros(len(range(obj.nperiods)))
+
+        for time in range(obj.nperiods):
+            date, value = obj.GetSwmmResults(
+                typenumber, name, int(variableindex), time)
+            data[time] = value
+
+    return data
 def main():
     if not os.path.exists('debug_swmmtoolbox'):
         sys.tracebacklimit = 0
@@ -552,4 +614,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

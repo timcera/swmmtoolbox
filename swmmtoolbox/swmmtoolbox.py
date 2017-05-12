@@ -399,7 +399,6 @@ def catalog(filename, itemtype=''):
         for oname in obj.names[i]:
             print('{0},{1}'.format(obj.itemlist[i], oname))
 
-
 @mando.command
 def listdetail(filename, itemtype, name=''):
     ''' List nodes and metadata in output file
@@ -408,7 +407,10 @@ def listdetail(filename, itemtype, name=''):
     :param itemtype: Type to print out the table of
         (subcatchment, node, or link)
     :param name: Optional specfic name to print only that entry.
+
+    Returns list of itemtype names.
     '''
+    cli = tsutils.test_cli()
     obj = SwmmExtract(filename)
     typenumber = obj.TypeCheck(itemtype)
     if name:
@@ -420,8 +422,8 @@ def listdetail(filename, itemtype, name=''):
     headstr = ['#Name'] + [PROPCODE[typenumber][i] for i in propnumbers]
     headfmtstr = '{0:<25},{1:<8},' + ','.join(
         ['{'+str(i)+':>10}' for i in range(2, 1+len(propnumbers))])
-
-    print(headfmtstr.format(*tuple(headstr)))
+    if cli:
+        print(headfmtstr.format(*tuple(headstr)))
     fmtstr = '{0:<25},{1:<8},' + ','.join(
         ['{'+str(i)+':10.2f}' for i in range(2, 1+len(propnumbers))])
 
@@ -432,8 +434,9 @@ def listdetail(filename, itemtype, name=''):
                 printvar.append(TYPECODE[typenumber][j[1]])
             else:
                 printvar.append(j[1])
-        print(fmtstr.format(*tuple(printvar)))
-
+        if cli:
+            print(fmtstr.format(*tuple(printvar)))
+    return objectlist
 
 @mando.command
 def listvariables(filename):
@@ -460,27 +463,6 @@ def listvariables(filename):
                 print('{0},{1},{2}'.format(itemtype,
                                            str(obj.varcode[typenumber][i]),
                                            str(i)))
-
-def getnames(filename, itemtype, kind=False):
-    """ Get Subcatchment, Node or Link Names
-    Essentially subset of listdetail
-    Itemtype = (string) subcatchment, node, link
-    Kind will only return certain type. IE for 'node', 'Outfall', 'Junction' ...
-    """
-    obj = SwmmExtract(filename)
-
-    typenumber = obj.TypeCheck(itemtype)
-    objectlist = obj.names[typenumber]
-    out_list = []
-    if kind:
-        for i, oname in enumerate(objectlist):
-            for j in obj.prop[typenumber][i]:
-                if j[0] == 0:
-                    if TYPECODE[typenumber][j[1]] == kind:
-                        out_list.append(oname)
-        return [int(out) for out in out_list]
-    else:
-        return [int(i) for i in objectlist]
 
 @mando.command
 def stdtoswmm5(start_date=None, end_date=None, input_ts='-'):
@@ -530,7 +512,6 @@ def getdata(filename, *labels):
     ''' DEPRECATED: Use 'extract' instead.
     '''
     return extract(filename, *labels)
-
 
 @mando.command
 def extract(filename, *labels):
@@ -606,6 +587,7 @@ def extract_arr(filename, *labels):
             data[time] = value
 
     return data
+
 def main():
     if not os.path.exists('debug_swmmtoolbox'):
         sys.tracebacklimit = 0

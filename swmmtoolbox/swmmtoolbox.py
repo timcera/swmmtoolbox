@@ -18,34 +18,26 @@ from six.moves import zip
 
 from tstoolbox import tsutils
 
-PROPCODE = {0: {1: 'Area',
-               },
+PROPCODE = {0: {1: 'Area'},
             1: {0: 'Type',
                 2: 'Inv_elev',
-                3: 'Max_depth'
-               },
+                3: 'Max_depth'},
             2: {0: 'Type',
                 4: 'Inv_offset',
                 3: 'Max_depth',
-                5: 'Length'
-               }
-           }
+                5: 'Length'}}
 
 # Names for the 'Node type' and 'Link type' codes above
-TYPECODE = {0: {1: 'Area',
-               },
+TYPECODE = {0: {1: 'Area'},
             1: {0: 'Junction',  # nodes
                 1: 'Outfall',
                 2: 'Storage',
-                3: 'Divider'
-               },
+                3: 'Divider'},
             2: {0: 'Conduit',   # links
                 1: 'Pump',
                 2: 'Orifice',
                 3: 'Weir',
-                4: 'Outlet'
-               }
-           }
+                4: 'Outlet'}}
 
 VARCODE = {0: {0: 'Rainfall',
                1: 'Snow_depth',
@@ -55,21 +47,18 @@ VARCODE = {0: {0: 'Rainfall',
                5: 'Groundwater_outflow',
                6: 'Groundwater_elevation',
                7: 'Soil_moisture',
-               8: 'Pollutant_washoff',
-              },
+               8: 'Pollutant_washoff'},
            1: {0: 'Depth_above_invert',
                1: 'Hydraulic_head',
                2: 'Volume_stored_ponded',
                3: 'Lateral_inflow',
                4: 'Total_inflow',
-               5: 'Flow_lost_flooding',
-              },
+               5: 'Flow_lost_flooding'},
            2: {0: 'Flow_rate',
                1: 'Flow_depth',
                2: 'Flow_velocity',
                3: 'Froude_number',
-               4: 'Capacity',
-              },
+               4: 'Capacity'},
            4: {0: 'Air_temperature',
                1: 'Rainfall',
                2: 'Snow_depth',
@@ -84,9 +73,7 @@ VARCODE = {0: {0: 'Rainfall',
                11: 'Flow_leaving_outfalls',
                12: 'Volume_stored_water',
                13: 'Evaporation_rate',
-               14: 'Potential_PET',
-              }
-          }
+               14: 'Potential_PET'}}
 
 # Prior to 5.10.10
 VARCODE_old = {0: {0: 'Rainfall',
@@ -94,21 +81,18 @@ VARCODE_old = {0: {0: 'Rainfall',
                    2: 'Evaporation_loss',
                    3: 'Runoff_rate',
                    4: 'Groundwater_outflow',
-                   5: 'Groundwater_elevation',
-                  },
+                   5: 'Groundwater_elevation'},
                1: {0: 'Depth_above_invert',
                    1: 'Hydraulic_head',
                    2: 'Volume_stored_ponded',
                    3: 'Lateral_inflow',
                    4: 'Total_inflow',
-                   5: 'Flow_lost_flooding',
-                  },
+                   5: 'Flow_lost_flooding'},
                2: {0: 'Flow_rate',
                    1: 'Flow_depth',
                    2: 'Flow_velocity',
                    3: 'Froude_number',
-                   4: 'Capacity',
-                  },
+                   4: 'Capacity'},
                4: {0: 'Air_temperature',
                    1: 'Rainfall',
                    2: 'Snow_depth',
@@ -122,9 +106,7 @@ VARCODE_old = {0: {0: 'Rainfall',
                    10: 'Flow_lost_to_flooding',
                    11: 'Flow_leaving_outfalls',
                    12: 'Volume_stored_water',
-                   13: 'Evaporation_rate',
-                  }
-              }
+                   13: 'Evaporation_rate'}}
 
 # FLOWUNITS is here, but currently not used.
 FLOWUNITS = {
@@ -365,15 +347,16 @@ class SwmmExtract():
     def GetDates(self):
         """ Return Start and End Date Tuple """
         begindate = datetime.datetime(1899, 12, 30)
-        ntimes  = range(self.nperiods)
+        ntimes = range(self.nperiods)
         periods = [ntimes[0], ntimes[-1]]
-        st_end  = []
+        st_end = []
         for period in periods:
             date_offset = self.ResultsStartPos + period*self.bytesperperiod
             self.fp.seek(date_offset, 0)
             day = struct.unpack('d', self.fp.read(2*self.RECORDSIZE))[0]
             st_end.append(begindate + datetime.timedelta(days=int(day)))
         return st_end
+
 
 @mando.command()
 def about():
@@ -398,6 +381,7 @@ def catalog(filename, itemtype=''):
     for i in plist:
         for oname in obj.names[i]:
             print('{0},{1}'.format(obj.itemlist[i], oname))
+
 
 @mando.command
 def listdetail(filename, itemtype, name=''):
@@ -438,6 +422,7 @@ def listdetail(filename, itemtype, name=''):
             print(fmtstr.format(*tuple(printvar)))
     return objectlist
 
+
 @mando.command
 def listvariables(filename):
     ''' List variables available for each type
@@ -463,6 +448,7 @@ def listvariables(filename):
                 print('{0},{1},{2}'.format(itemtype,
                                            str(obj.varcode[typenumber][i]),
                                            str(i)))
+
 
 @mando.command
 def stdtoswmm5(start_date=None, end_date=None, input_ts='-'):
@@ -513,6 +499,7 @@ def getdata(filename, *labels):
     '''
     return extract(filename, *labels)
 
+
 @mando.command
 def extract(filename, *labels):
     ''' Get the time series data for a particular object and variable
@@ -556,6 +543,7 @@ def extract(filename, *labels):
     result = pd.concat(jtsd, axis=1, join_axes=[jtsd[0].index])
     return tsutils.printiso(result)
 
+
 def extract_arr(filename, *labels):
     """
     Same as extract except it returns the raw numpy array.
@@ -587,6 +575,7 @@ def extract_arr(filename, *labels):
             data[time] = value
 
     return data
+
 
 def main():
     if not os.path.exists('debug_swmmtoolbox'):

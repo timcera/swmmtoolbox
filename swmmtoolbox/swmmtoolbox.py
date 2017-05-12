@@ -362,6 +362,18 @@ class SwmmExtract():
         value = struct.unpack('f', self.fp.read(self.RECORDSIZE))[0]
         return (date, value)
 
+    def GetDates(self):
+        """ Return Start and End Date Tuple """
+        begindate = datetime.datetime(1899, 12, 30)
+        ntimes  = range(self.nperiods)
+        periods = [ntimes[0], ntimes[-1]]
+        st_end  = []
+        for period in periods:
+            date_offset = self.ResultsStartPos + period*self.bytesperperiod
+            self.fp.seek(date_offset, 0)
+            day = struct.unpack('d', self.fp.read(2*self.RECORDSIZE))[0]
+            st_end.append(begindate + datetime.timedelta(days=int(day)))
+        return st_end
 
 @mando.command()
 def about():
@@ -387,7 +399,6 @@ def catalog(filename, itemtype=''):
         for oname in obj.names[i]:
             print('{0},{1}'.format(obj.itemlist[i], oname))
 
-
 @mando.command
 def listdetail(filename, itemtype, name=''):
     ''' List nodes and metadata in output file
@@ -396,7 +407,10 @@ def listdetail(filename, itemtype, name=''):
     :param itemtype: Type to print out the table of
         (subcatchment, node, or link)
     :param name: Optional specfic name to print only that entry.
+
+    Returns list of itemtype names.
     '''
+    cli = tsutils.test_cli()
     obj = SwmmExtract(filename)
     typenumber = obj.TypeCheck(itemtype)
     if name:
@@ -408,8 +422,8 @@ def listdetail(filename, itemtype, name=''):
     headstr = ['#Name'] + [PROPCODE[typenumber][i] for i in propnumbers]
     headfmtstr = '{0:<25},{1:<8},' + ','.join(
         ['{'+str(i)+':>10}' for i in range(2, 1+len(propnumbers))])
-
-    print(headfmtstr.format(*tuple(headstr)))
+    if cli:
+        print(headfmtstr.format(*tuple(headstr)))
     fmtstr = '{0:<25},{1:<8},' + ','.join(
         ['{'+str(i)+':10.2f}' for i in range(2, 1+len(propnumbers))])
 
@@ -420,8 +434,9 @@ def listdetail(filename, itemtype, name=''):
                 printvar.append(TYPECODE[typenumber][j[1]])
             else:
                 printvar.append(j[1])
-        print(fmtstr.format(*tuple(printvar)))
-
+        if cli:
+            print(fmtstr.format(*tuple(printvar)))
+    return objectlist
 
 @mando.command
 def listvariables(filename):
@@ -448,7 +463,6 @@ def listvariables(filename):
                 print('{0},{1},{2}'.format(itemtype,
                                            str(obj.varcode[typenumber][i]),
                                            str(i)))
-
 
 @mando.command
 def stdtoswmm5(start_date=None, end_date=None, input_ts='-'):
@@ -499,7 +513,6 @@ def getdata(filename, *labels):
     '''
     return extract(filename, *labels)
 
-
 @mando.command
 def extract(filename, *labels):
     ''' Get the time series data for a particular object and variable
@@ -543,6 +556,37 @@ def extract(filename, *labels):
     result = pd.concat(jtsd, axis=1, join_axes=[jtsd[0].index])
     return tsutils.printiso(result)
 
+def extract_arr(filename, *labels):
+    """
+    Same as extract except it returns the raw numpy array.
+
+    :param filename: Filename of SWMM output file.
+    :param labels: The remaining arguments uniquely identify a time-series
+        in the binary file.  The format is
+        'TYPE,NAME,VARINDEX'.
+        For example: 'node,C64,1 node,C63,1 ...'
+        TYPE and NAME can be retrieved with
+            'swmmtoolbox list filename.out'
+        VARINDEX can be retrieved with
+            'swmmtoolbox listvariables filename.out'
+    """
+    obj = SwmmExtract(filename)
+    for label in labels:
+        itemtype, name, variableindex = label.split(',')
+        typenumber = obj.TypeCheck(itemtype)
+        if itemtype != 'system':
+            name = obj.NameCheck(itemtype, name)[0]
+
+        obj.UpdateVarCode(typenumber)
+
+        data = np.zeros(len(range(obj.nperiods)))
+
+        for time in range(obj.nperiods):
+            date, value = obj.GetSwmmResults(
+                typenumber, name, int(variableindex), time)
+            data[time] = value
+
+    return data
 
 def main():
     if not os.path.exists('debug_swmmtoolbox'):
@@ -552,4 +596,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

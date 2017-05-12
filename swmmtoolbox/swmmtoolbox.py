@@ -12,6 +12,7 @@ import datetime
 import os
 
 import mando
+from mando.rst_text_formatter import RSTHelpFormatter
 import pandas as pd
 from six.moves import range
 from six.moves import zip
@@ -118,6 +119,14 @@ FLOWUNITS = {
     5: 'LPD'
     }
 
+
+_LOCAL_DOCSTRINGS = tsutils.docstrings
+_LOCAL_DOCSTRINGS['filename'] = '''filename : str
+        Filename of SWMM output file.  The SWMM model must complete
+        successfully for "swmmtoolbox" to correctly read it.'''
+_LOCAL_DOCSTRINGS['itemtype'] = '''itemtype : str
+        One of 'system', 'node', 'node', 'link', or 'pollutant' to
+        identify the type of data you want to extract.'''
 
 class SwmmExtract():
     def __init__(self, filename):
@@ -365,11 +374,15 @@ def about():
     tsutils.about(__name__)
 
 
-@mando.command
+@mando.command(formatter_class=RSTHelpFormatter, doctype='numpy')
+@tsutils.doc(_LOCAL_DOCSTRINGS)
 def catalog(filename, itemtype=''):
     ''' List the catalog of objects in output file
 
-    :param filename: Filename of SWMM output file.
+    Parameters
+    ----------
+    {filename}
+    {itemtype}
     '''
     obj = SwmmExtract(filename)
     if itemtype:
@@ -383,16 +396,22 @@ def catalog(filename, itemtype=''):
             print('{0},{1}'.format(obj.itemlist[i], oname))
 
 
-@mando.command
+@mando.command(formatter_class=RSTHelpFormatter, doctype='numpy')
+@tsutils.doc(_LOCAL_DOCSTRINGS)
 def listdetail(filename, itemtype, name=''):
     ''' List nodes and metadata in output file
 
-    :param filename: Filename of SWMM output file.
-    :param itemtype: Type to print out the table of
-        (subcatchment, node, or link)
-    :param name: Optional specfic name to print only that entry.
+    Parameters
+    ----------
+    {filename}
+    {itemtype}
+    name : str
+        Optional specific name to print only that entry.
 
-    Returns list of itemtype names.
+    Returns
+    -------
+    ret : list of itemtype names.
+
     '''
     cli = tsutils.test_cli()
     obj = SwmmExtract(filename)
@@ -423,12 +442,15 @@ def listdetail(filename, itemtype, name=''):
     return objectlist
 
 
-@mando.command
+@mando.command(formatter_class=RSTHelpFormatter, doctype='numpy')
+@tsutils.doc(_LOCAL_DOCSTRINGS)
 def listvariables(filename):
     ''' List variables available for each type
         (subcatchment, node, link, pollutant, system)
 
-    :param filename: Filename of SWMM output file.
+    Parameters
+    ----------
+    {filename}
     '''
     obj = SwmmExtract(filename)
     print('TYPE, DESCRIPTION, VARINDEX')
@@ -450,28 +472,32 @@ def listvariables(filename):
                                            str(i)))
 
 
-@mando.command
+@mando.command(formatter_class=RSTHelpFormatter, doctype='numpy')
+@tsutils.doc(_LOCAL_DOCSTRINGS)
 def stdtoswmm5(start_date=None, end_date=None, input_ts='-'):
     ''' Take the toolbox standard format and return SWMM5 format.
 
-    Toolbox standard:
-    Datetime, Column_Name
-    2000-01-01 00:00:00 ,  45.6
-    2000-01-01 01:00:00 ,  45.2
-    ...
 
-    SWMM5 format:
-    ; comment line
-    01/01/2000 00:00, 45.6
-    01/01/2000 01:00, 45.2
-    ...
+    Toolbox standard::
 
-    :param input_ts: Filename with data in 'ISOdate,value' format or '-' for
-        stdin.  Default is stdin.
-    :param start_date: The start_date of the series in ISOdatetime format, or
-        'None' for beginning.
-    :param end_date: The end_date of the series in ISOdatetime format, or
-        'None' for end.
+       Datetime, Column_Name
+       2000-01-01 00:00:00 ,  45.6
+       2000-01-01 01:00:00 ,  45.2
+       ...
+
+    SWMM5 format::
+
+        ; comment line
+        01/01/2000 00:00, 45.6
+        01/01/2000 01:00, 45.2
+        ...
+
+    Parameters
+    ----------
+    {input_ts}
+    {start_date}
+    {end_date}
+
     '''
     import csv
     sys.tracebacklimit = 1000
@@ -493,26 +519,38 @@ def stdtoswmm5(start_date=None, end_date=None, input_ts='-'):
         return
 
 
-@mando.command
+@mando.command(formatter_class=RSTHelpFormatter, doctype='numpy')
+@tsutils.doc(_LOCAL_DOCSTRINGS)
 def getdata(filename, *labels):
     ''' DEPRECATED: Use 'extract' instead.
     '''
     return extract(filename, *labels)
 
 
-@mando.command
+@mando.command(formatter_class=RSTHelpFormatter, doctype='numpy')
+@tsutils.doc(_LOCAL_DOCSTRINGS)
 def extract(filename, *labels):
     ''' Get the time series data for a particular object and variable
 
-    :param filename: Filename of SWMM output file.
-    :param labels: The remaining arguments uniquely identify a time-series
-        in the binary file.  The format is
-        'TYPE,NAME,VARINDEX'.
+    Parameters
+    ----------
+    {filename}
+    labels
+        The remaining arguments uniquely identify a time-series
+        in the binary file.  The format is::
+
+            'TYPE,NAME,VARINDEX'.
+
         For example: 'node,C64,1 node,C63,1 ...'
-        TYPE and NAME can be retrieved with
+
+        TYPE and NAME can be retrieved with::
+
             'swmmtoolbox list filename.out'
-        VARINDEX can be retrieved with
+
+        VARINDEX can be retrieved with::
+
             'swmmtoolbox listvariables filename.out'
+
     '''
     obj = SwmmExtract(filename)
     jtsd = []

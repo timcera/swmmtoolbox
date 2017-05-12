@@ -579,7 +579,7 @@ def extract_arr(filename, *labels):
 
         obj.UpdateVarCode(typenumber)
 
-        data = np.zeros(len(range(obj.nperiods)))
+        data = pd.np.zeros(len(range(obj.nperiods)))
 
         for time in range(obj.nperiods):
             date, value = obj.GetSwmmResults(

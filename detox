@@ -4,6 +4,10 @@ program=swmmtoolbox
 
 pkgs="\
      setuptools \
+     mando \
+     numpy \
+     scipy \
+     matplotlib \
      nose \
      pandas \
      coverage \
@@ -11,35 +15,35 @@ pkgs="\
      "
 
 # pandas no longer supports 2.6
-envs=(2.7 3.3 3.4 3.5)
+envs=(~/python_ves/python-2.7.13 \
+      ~/python_ves/python-3.4.5 \
+      ~/python_ves/python-3.5.2 \
+      ~/python_ves/python-3.6.0)
 
 for env in ${envs[@]}; do
     echo "${env}"
 
-    pew in python${env} << EOT
+    source "${env}"/bin/activate
+    pip install --upgrade pip
     pip install --upgrade ${pkgs}
     pip uninstall -y ${program}
     rm -rf build
-    pip install --upgrade --no-deps ../${program}/
+    python setup.py develop
 
     nosetests \
-        --with-doctest \
         --with-coverage \
         --cover-tests \
         --cover-package=${program} \
         --cover-branches \
         --cover-erase
-EOT
+    deactivate
 done
 
-pew in python3.4 << EOTT
+source "${env}"/bin/activate
 coverage erase
-coverage run `which nosetests` --with-doctest
-coverage report --include="swmmtoolbox/*" --omit="tests/*"
-coverage html --include="swmmtoolbox/*" --omit="tests/*"
-flake8 swmmtoolbox/__init__.py --exit-zero
+coverage run `which nosetests`
+coverage report --include="${program}/*" --omit="tests/*"
+coverage html --include="${program}/*" --omit="tests/*"
+flake8 ${program}/__init__.py ${program}/${program}.py ${program}/tsutils.py --exit-zero
+deactivate
 
-cd docsrc
-make clean
-make html
-EOTT

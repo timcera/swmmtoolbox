@@ -11,9 +11,10 @@ import shlex
 import subprocess
 import os
 import six
+import csv
 
-from pandas.util.testing import TestCase
-from pandas.util.testing import assert_frame_equal, assert_equal
+from unittest import TestCase
+from pandas.util.testing import assert_frame_equal
 import sys
 try:
     from cStringIO import StringIO
@@ -30,10 +31,9 @@ def capture(func, *args, **kwds):
     out = func(*args, **kwds)
     out = sys.stdout.getvalue()  # release output
     try:
-        out = bytes(out, 'utf-8')
+        return bytes(out, 'utf-8')
     except:
-        pass
-    return out
+        return out
 
 
 class TestListdetail(TestCase):
@@ -45,12 +45,14 @@ class TestListdetail(TestCase):
         self.listdetail_link = open(listdetail_link_fname).readlines()
 
     def test_listdetail_node(self):
-        out = capture(swmmtoolbox.listdetail, os.path.join('tests', 'frutal.out'), 'node')
+        out = swmmtoolbox.listdetail(os.path.join('tests', 'frutal.out'),
+                                     'node')
         self.maxDiff = None
-        assert_equal(out, six.b(''.join(self.listdetail_node)))
+        self.assertEqual(out, self.listdetail_node)
 
     def test_listdetail_link(self):
-        out = capture(swmmtoolbox.listdetail, os.path.join('tests', 'frutal.out'), 'link')
+        out = swmmtoolbox.listdetail(os.path.join('tests', 'frutal.out'),
+                                     'link')
         self.maxDiff = None
-        assert_equal(out, six.b(''.join(self.listdetail_link)))
+        self.assertEqual(out, self.listdetail_link)
 

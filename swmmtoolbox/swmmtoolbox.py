@@ -109,8 +109,8 @@ VARCODE_old = {0: {0: 'Rainfall',
                    12: 'Volume_stored_water',
                    13: 'Evaporation_rate'}}
 
-# FLOWUNITS is here, but currently not used.
-FLOWUNITS = {
+# SWMM_FlowUnits is here, but currently not used.
+SWMM_FlowUnits = {
     0: 'CFS',
     1: 'GPM',
     2: 'MGD',
@@ -125,8 +125,24 @@ _LOCAL_DOCSTRINGS['filename'] = '''filename : str
         Filename of SWMM output file.  The SWMM model must complete
         successfully for "swmmtoolbox" to correctly read it.'''
 _LOCAL_DOCSTRINGS['itemtype'] = '''itemtype : str
-        One of 'system', 'node', 'node', 'link', or 'pollutant' to
-        identify the type of data you want to extract.'''
+        One of 'system', 'node', 'link', or 'pollutant' to identify the
+        type of data you want to extract.'''
+_LOCAL_DOCSTRINGS['labels'] = '''labels : str
+        The remaining arguments uniquely identify a time-series
+        in the binary file.  The format is::
+
+            'TYPE,NAME,VARINDEX'.
+
+        For example: 'node,C64,1 node,C63,1 ...'
+
+        TYPE and NAME can be retrieved with::
+
+            'swmmtoolbox list filename.out'
+
+        VARINDEX can be retrieved with::
+
+            'swmmtoolbox listvariables filename.out' '''
+
 
 class SwmmExtract():
     def __init__(self, filename):
@@ -138,10 +154,10 @@ class SwmmExtract():
         self.fp.seek(-6*self.RECORDSIZE, 2)
 
         self.NamesStartPos, \
-            self.PropertiesStartPos, \
-            self.ResultsStartPos, \
-            self.nperiods, \
-            errcode, \
+            self.offset0, \
+            self.StartPos, \
+            self.SWMM_Nperiods, \
+            errCode, \
             magic2 = struct.unpack('6i', self.fp.read(6*self.RECORDSIZE))
 
         self.fp.seek(0, 0)
@@ -153,19 +169,20 @@ class SwmmExtract():
         if magic2 != 516114522:
             print('Second magic number incorrect.')
             sys.exit(1)
-        if errcode != 0:
+        if errCode != 0:
             print('Error code in output file indicates a problem with the run')
             sys.exit(1)
-        if self.nperiods == 0:
+        if self.SWMM_Nperiods == 0:
             print('There are zero time periods in the output file')
             sys.exit(1)
 
+        # --- otherwise read additional parameters from start of file
         version, \
-            self.flowunits, \
-            self.nsubcatch, \
-            self.nnodes, \
-            self.nlinks, \
-            self.npolluts = struct.unpack('6i',
+            self.SWMM_FlowUnits, \
+            self.SWMM_Nsubcatch, \
+            self.SWMM_Nnodes, \
+            self.SWMM_Nlinks, \
+            self.SWMM_Npolluts = struct.unpack('6i',
                                           self.fp.read(6*self.RECORDSIZE))
         if version < 5100:
             self.varcode = VARCODE_old
@@ -177,10 +194,10 @@ class SwmmExtract():
         # Read in the names
         self.fp.seek(self.NamesStartPos, 0)
         self.names = {0: [], 1: [], 2: [], 3: [], 4: []}
-        number_list = [self.nsubcatch,
-                       self.nnodes,
-                       self.nlinks,
-                       self.npolluts]
+        number_list = [self.SWMM_Nsubcatch,
+                       self.SWMM_Nnodes,
+                       self.SWMM_Nlinks,
+                       self.SWMM_Npolluts]
         for i, j in enumerate(number_list):
             for k in range(j):
                 stringsize = struct.unpack('i',
@@ -207,8 +224,8 @@ class SwmmExtract():
         # Read pollutant concentration codes
         # = Number of pollutants * 4 byte integers
         self.pollutant_codes = struct.unpack(
-            '{0}i'.format(self.npolluts),
-            self.fp.read(self.npolluts*self.RECORDSIZE))
+            '{0}i'.format(self.SWMM_Npolluts),
+            self.fp.read(self.SWMM_Npolluts*self.RECORDSIZE))
 
         self.propcode = {}
         self.prop = {0: [], 1: [], 2: []}
@@ -216,7 +233,7 @@ class SwmmExtract():
         self.propcode[0] = struct.unpack(
             '{0}i'.format(nsubprop),
             self.fp.read(nsubprop*self.RECORDSIZE))
-        for i in range(self.nsubcatch):
+        for i in range(self.SWMM_Nsubcatch):
             rprops = struct.unpack(
                 '{0}f'.format(nsubprop),
                 self.fp.read(nsubprop*self.RECORDSIZE))
@@ -226,7 +243,7 @@ class SwmmExtract():
         self.propcode[1] = struct.unpack(
             '{0}i'.format(nnodeprop),
             self.fp.read(nnodeprop*self.RECORDSIZE))
-        for i in range(self.nnodes):
+        for i in range(self.SWMM_Nnodes):
             rprops = struct.unpack(
                 'i{0}f'.format(nnodeprop - 1),
                 self.fp.read(nnodeprop*self.RECORDSIZE))
@@ -236,18 +253,18 @@ class SwmmExtract():
         self.propcode[2] = struct.unpack(
             '{0}i'.format(nlinkprop),
             self.fp.read(nlinkprop*self.RECORDSIZE))
-        for i in range(self.nlinks):
+        for i in range(self.SWMM_Nlinks):
             rprops = struct.unpack(
                 'i{0}f'.format(nlinkprop - 1),
                 self.fp.read(nlinkprop*self.RECORDSIZE))
             self.prop[2].append(list(zip(self.propcode[2], rprops)))
 
         self.vars = {}
-        self.nsubcatchvars = struct.unpack(
+        self.SWMM_Nsubcatchvars = struct.unpack(
             'i', self.fp.read(self.RECORDSIZE))[0]
         self.vars[0] = struct.unpack(
-            '{0}i'.format(self.nsubcatchvars),
-            self.fp.read(self.nsubcatchvars*self.RECORDSIZE))
+            '{0}i'.format(self.SWMM_Nsubcatchvars),
+            self.fp.read(self.SWMM_Nsubcatchvars*self.RECORDSIZE))
 
         self.nnodevars = struct.unpack('i', self.fp.read(self.RECORDSIZE))[0]
         self.vars[1] = struct.unpack(
@@ -267,7 +284,7 @@ class SwmmExtract():
             self.fp.read(self.nsystemvars*self.RECORDSIZE))
 
         # System vars do not have names per se, but made names = number labels
-        self.names[4] = [str(i) for i in self.vars[4]]
+        self.names[4] = [self.varcode[4][i] for i in self.vars[4]]
 
         self.startdate = struct.unpack('d', self.fp.read(2*self.RECORDSIZE))[0]
         days = int(self.startdate)
@@ -284,9 +301,9 @@ class SwmmExtract():
         # reading the computed results
         self.bytesperperiod = self.RECORDSIZE*(
             2 +
-            self.nsubcatch*self.nsubcatchvars +
-            self.nnodes*self.nnodevars +
-            self.nlinks*self.nlinkvars +
+            self.SWMM_Nsubcatch*self.SWMM_Nsubcatchvars +
+            self.SWMM_Nnodes*self.nnodevars +
+            self.SWMM_Nlinks*self.nlinkvars +
             self.nsystemvars)
 
     def UpdateVarCode(self, typenumber):
@@ -322,7 +339,7 @@ class SwmmExtract():
 
         itemname, itemindex = self.NameCheck(itemtype, name)
 
-        date_offset = self.ResultsStartPos + period*self.bytesperperiod
+        date_offset = self.StartPos + period*self.bytesperperiod
 
         self.fp.seek(date_offset, 0)
         date = struct.unpack('d', self.fp.read(2*self.RECORDSIZE))[0]
@@ -331,21 +348,21 @@ class SwmmExtract():
 
         if itemtype == 0:
             offset = offset + self.RECORDSIZE*(
-                itemindex*self.nsubcatchvars)
+                itemindex*self.SWMM_Nsubcatchvars)
         if itemtype == 1:
             offset = offset + self.RECORDSIZE*(
-                self.nsubcatch*self.nsubcatchvars +
+                self.SWMM_Nsubcatch*self.SWMM_Nsubcatchvars +
                 itemindex*self.nnodevars)
         elif itemtype == 2:
             offset = offset + self.RECORDSIZE*(
-                self.nsubcatch*self.nsubcatchvars +
-                self.nnodes*self.nnodevars +
+                self.SWMM_Nsubcatch*self.SWMM_Nsubcatchvars +
+                self.SWMM_Nnodes*self.nnodevars +
                 itemindex*self.nlinkvars)
         elif itemtype == 4:
             offset = offset + self.RECORDSIZE*(
-                self.nsubcatch*self.nsubcatchvars +
-                self.nnodes*self.nnodevars +
-                self.nlinks*self.nlinkvars)
+                self.SWMM_Nsubcatch*self.SWMM_Nsubcatchvars +
+                self.SWMM_Nnodes*self.nnodevars +
+                self.SWMM_Nlinks*self.nlinkvars)
 
         offset = offset + self.RECORDSIZE*variableindex
 
@@ -356,11 +373,11 @@ class SwmmExtract():
     def GetDates(self):
         """ Return Start and End Date Tuple """
         begindate = datetime.datetime(1899, 12, 30)
-        ntimes = range(self.nperiods)
+        ntimes = range(self.SWMM_Nperiods)
         periods = [ntimes[0], ntimes[-1]]
         st_end = []
         for period in periods:
-            date_offset = self.ResultsStartPos + period*self.bytesperperiod
+            date_offset = self.StartPos + period*self.bytesperperiod
             self.fp.seek(date_offset, 0)
             day = struct.unpack('d', self.fp.read(2*self.RECORDSIZE))[0]
             st_end.append(begindate + datetime.timedelta(days=int(day)))
@@ -376,13 +393,16 @@ def about():
 
 @mando.command(formatter_class=RSTHelpFormatter, doctype='numpy')
 @tsutils.doc(_LOCAL_DOCSTRINGS)
-def catalog(filename, itemtype=''):
+def catalog(filename, itemtype='', tablefmt='simple', header='default'):
     ''' List the catalog of objects in output file
 
     Parameters
     ----------
     {filename}
     {itemtype}
+    {tablefmt}
+    {header}
+
     '''
     obj = SwmmExtract(filename)
     if itemtype:
@@ -390,30 +410,37 @@ def catalog(filename, itemtype=''):
         plist = [typenumber]
     else:
         plist = list(range(len(obj.itemlist)))
-    print('TYPE, NAME')
+    if header == 'default':
+        header = ['TYPE', 'NAME']
+    collect=[]
     for i in plist:
         for oname in obj.names[i]:
-            print('{0},{1}'.format(obj.itemlist[i], oname))
+            collect.append([obj.itemlist[i], oname])
+    return tsutils.printiso(collect,
+                            tablefmt=tablefmt,
+                            headers=header)
 
 
 @mando.command(formatter_class=RSTHelpFormatter, doctype='numpy')
 @tsutils.doc(_LOCAL_DOCSTRINGS)
-def listdetail(filename, itemtype, name=''):
-    ''' List nodes and metadata in output file
+def listdetail(filename,
+               itemtype,
+               name='',
+               tablefmt='simple',
+               header='default'):
+    ''' List nodes and metadata in output file.
 
     Parameters
     ----------
     {filename}
     {itemtype}
     name : str
-        Optional specific name to print only that entry.
-
-    Returns
-    -------
-    ret : list of itemtype names.
+        Optional specific name to print only that entry.  This can be
+        looked up using 'listvariables'.
+    {tablefmt}
+    {header}
 
     '''
-    cli = tsutils.test_cli()
     obj = SwmmExtract(filename)
     typenumber = obj.TypeCheck(itemtype)
     if name:
@@ -422,14 +449,10 @@ def listdetail(filename, itemtype, name=''):
         objectlist = obj.names[typenumber]
 
     propnumbers = obj.propcode[typenumber]
-    headstr = ['#Name'] + [PROPCODE[typenumber][i] for i in propnumbers]
-    headfmtstr = '{0:<25},{1:<8},' + ','.join(
-        ['{'+str(i)+':>10}' for i in range(2, 1+len(propnumbers))])
-    if cli:
-        print(headfmtstr.format(*tuple(headstr)))
-    fmtstr = '{0:<25},{1:<8},' + ','.join(
-        ['{'+str(i)+':10.2f}' for i in range(2, 1+len(propnumbers))])
+    if header == "default":
+        header = ['#Name'] + [PROPCODE[typenumber][i] for i in propnumbers]
 
+    collect=[]
     for i, oname in enumerate(objectlist):
         printvar = [oname]
         for j in obj.prop[typenumber][i]:
@@ -437,25 +460,30 @@ def listdetail(filename, itemtype, name=''):
                 printvar.append(TYPECODE[typenumber][j[1]])
             else:
                 printvar.append(j[1])
-        if cli:
-            print(fmtstr.format(*tuple(printvar)))
-    return objectlist
+        collect.append(printvar)
+    return tsutils.printiso(collect,
+                            tablefmt=tablefmt,
+                            headers=header)
 
 
 @mando.command(formatter_class=RSTHelpFormatter, doctype='numpy')
 @tsutils.doc(_LOCAL_DOCSTRINGS)
-def listvariables(filename):
+def listvariables(filename, tablefmt='csv_nos', header='default'):
     ''' List variables available for each type
         (subcatchment, node, link, pollutant, system)
 
     Parameters
     ----------
     {filename}
+    {tablefmt}
+    {header}
     '''
     obj = SwmmExtract(filename)
-    print('TYPE, DESCRIPTION, VARINDEX')
+    if header == 'default':
+        header = ['TYPE', 'DESCRIPTION', 'VARINDEX']
     # 'pollutant' really isn't it's own itemtype
     # but part of subcatchment, node, and link...
+    collect = []
     for itemtype in ['subcatchment', 'node', 'link', 'system']:
         typenumber = obj.TypeCheck(itemtype)
 
@@ -463,20 +491,22 @@ def listvariables(filename):
 
         for i in obj.vars[typenumber]:
             try:
-                print('{0},{1},{2}'.format(itemtype,
-                                           obj.varcode[typenumber][i].decode(),
-                                           i))
+                collect.append([itemtype,
+                               obj.varcode[typenumber][i].decode(),
+                               i])
             except (TypeError, AttributeError):
-                print('{0},{1},{2}'.format(itemtype,
-                                           str(obj.varcode[typenumber][i]),
-                                           str(i)))
+                collect.append([itemtype,
+                                str(obj.varcode[typenumber][i]),
+                                str(i)])
+    return tsutils.printiso(collect,
+                            tablefmt=tablefmt,
+                            headers=header)
 
 
 @mando.command(formatter_class=RSTHelpFormatter, doctype='numpy')
 @tsutils.doc(_LOCAL_DOCSTRINGS)
 def stdtoswmm5(start_date=None, end_date=None, input_ts='-'):
     ''' Take the toolbox standard format and return SWMM5 format.
-
 
     Toolbox standard::
 
@@ -535,21 +565,7 @@ def extract(filename, *labels):
     Parameters
     ----------
     {filename}
-    labels
-        The remaining arguments uniquely identify a time-series
-        in the binary file.  The format is::
-
-            'TYPE,NAME,VARINDEX'.
-
-        For example: 'node,C64,1 node,C63,1 ...'
-
-        TYPE and NAME can be retrieved with::
-
-            'swmmtoolbox list filename.out'
-
-        VARINDEX can be retrieved with::
-
-            'swmmtoolbox listvariables filename.out'
+    {labels}
 
     '''
     obj = SwmmExtract(filename)
@@ -557,19 +573,19 @@ def extract(filename, *labels):
     for label in labels:
         itemtype, name, variableindex = label.split(',')
         typenumber = obj.TypeCheck(itemtype)
-        if itemtype != 'system':
-            name = obj.NameCheck(itemtype, name)[0]
+        #if itemtype != 'system':
+        name = obj.NameCheck(itemtype, name)[0]
 
         obj.UpdateVarCode(typenumber)
 
         begindate = datetime.datetime(1899, 12, 30)
         dates = []
         values = []
-        for time in range(obj.nperiods):
+        for time in range(obj.SWMM_Nperiods):
             date, value = obj.GetSwmmResults(
                 typenumber, name, int(variableindex), time)
             days = int(date)
-            seconds = (date - days)*86400
+            seconds = int((date - days)*86400)
             date = begindate + datetime.timedelta(
                 days=days, seconds=seconds)
             dates.append(date)
@@ -582,19 +598,18 @@ def extract(filename, *labels):
     return tsutils.printiso(result)
 
 
+@tsutils.doc(_LOCAL_DOCSTRINGS)
 def extract_arr(filename, *labels):
     """
     Same as extract except it returns the raw numpy array.
 
-    :param filename: Filename of SWMM output file.
-    :param labels: The remaining arguments uniquely identify a time-series
-        in the binary file.  The format is
-        'TYPE,NAME,VARINDEX'.
-        For example: 'node,C64,1 node,C63,1 ...'
-        TYPE and NAME can be retrieved with
-            'swmmtoolbox list filename.out'
-        VARINDEX can be retrieved with
-            'swmmtoolbox listvariables filename.out'
+    Available only within Python API
+
+    Parameters
+    ----------
+    {filename}
+    {labels}
+
     """
     obj = SwmmExtract(filename)
     for label in labels:
@@ -605,9 +620,9 @@ def extract_arr(filename, *labels):
 
         obj.UpdateVarCode(typenumber)
 
-        data = pd.np.zeros(len(range(obj.nperiods)))
+        data = pd.np.zeros(len(range(obj.SWMM_Nperiods)))
 
-        for time in range(obj.nperiods):
+        for time in range(obj.SWMM_Nperiods):
             date, value = obj.GetSwmmResults(
                 typenumber, name, int(variableindex), time)
             data[time] = value

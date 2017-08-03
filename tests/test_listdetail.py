@@ -55,4 +55,3 @@ class TestListdetail(TestCase):
                                      'link')
         self.maxDiff = None
         self.assertEqual(out, self.listdetail_link)
-

@@ -117,7 +117,7 @@ SWMM_FlowUnits = {
     3: 'CMS',
     4: 'LPS',
     5: 'LPD'
-    }
+}
 
 
 _LOCAL_DOCSTRINGS = tsutils.docstrings
@@ -151,14 +151,14 @@ class SwmmExtract():
 
         self.fp = open(filename, 'rb')
 
-        self.fp.seek(-6*self.RECORDSIZE, 2)
+        self.fp.seek(-6 * self.RECORDSIZE, 2)
 
         self.NamesStartPos, \
             self.offset0, \
             self.StartPos, \
             self.SWMM_Nperiods, \
             errCode, \
-            magic2 = struct.unpack('6i', self.fp.read(6*self.RECORDSIZE))
+            magic2 = struct.unpack('6i', self.fp.read(6 * self.RECORDSIZE))
 
         self.fp.seek(0, 0)
         magic1 = struct.unpack('i', self.fp.read(self.RECORDSIZE))[0]
@@ -183,7 +183,7 @@ class SwmmExtract():
             self.SWMM_Nnodes, \
             self.SWMM_Nlinks, \
             self.SWMM_Npolluts = struct.unpack('6i',
-                                          self.fp.read(6*self.RECORDSIZE))
+                                               self.fp.read(6 * self.RECORDSIZE))
         if version < 5100:
             self.varcode = VARCODE_old
         else:
@@ -225,38 +225,38 @@ class SwmmExtract():
         # = Number of pollutants * 4 byte integers
         self.pollutant_codes = struct.unpack(
             '{0}i'.format(self.SWMM_Npolluts),
-            self.fp.read(self.SWMM_Npolluts*self.RECORDSIZE))
+            self.fp.read(self.SWMM_Npolluts * self.RECORDSIZE))
 
         self.propcode = {}
         self.prop = {0: [], 1: [], 2: []}
         nsubprop = struct.unpack('i', self.fp.read(self.RECORDSIZE))[0]
         self.propcode[0] = struct.unpack(
             '{0}i'.format(nsubprop),
-            self.fp.read(nsubprop*self.RECORDSIZE))
+            self.fp.read(nsubprop * self.RECORDSIZE))
         for i in range(self.SWMM_Nsubcatch):
             rprops = struct.unpack(
                 '{0}f'.format(nsubprop),
-                self.fp.read(nsubprop*self.RECORDSIZE))
+                self.fp.read(nsubprop * self.RECORDSIZE))
             self.prop[0].append(list(zip(self.propcode[0], rprops)))
 
         nnodeprop = struct.unpack('i', self.fp.read(self.RECORDSIZE))[0]
         self.propcode[1] = struct.unpack(
             '{0}i'.format(nnodeprop),
-            self.fp.read(nnodeprop*self.RECORDSIZE))
+            self.fp.read(nnodeprop * self.RECORDSIZE))
         for i in range(self.SWMM_Nnodes):
             rprops = struct.unpack(
                 'i{0}f'.format(nnodeprop - 1),
-                self.fp.read(nnodeprop*self.RECORDSIZE))
+                self.fp.read(nnodeprop * self.RECORDSIZE))
             self.prop[1].append(list(zip(self.propcode[1], rprops)))
 
         nlinkprop = struct.unpack('i', self.fp.read(self.RECORDSIZE))[0]
         self.propcode[2] = struct.unpack(
             '{0}i'.format(nlinkprop),
-            self.fp.read(nlinkprop*self.RECORDSIZE))
+            self.fp.read(nlinkprop * self.RECORDSIZE))
         for i in range(self.SWMM_Nlinks):
             rprops = struct.unpack(
                 'i{0}f'.format(nlinkprop - 1),
-                self.fp.read(nlinkprop*self.RECORDSIZE))
+                self.fp.read(nlinkprop * self.RECORDSIZE))
             self.prop[2].append(list(zip(self.propcode[2], rprops)))
 
         self.vars = {}
@@ -264,31 +264,32 @@ class SwmmExtract():
             'i', self.fp.read(self.RECORDSIZE))[0]
         self.vars[0] = struct.unpack(
             '{0}i'.format(self.SWMM_Nsubcatchvars),
-            self.fp.read(self.SWMM_Nsubcatchvars*self.RECORDSIZE))
+            self.fp.read(self.SWMM_Nsubcatchvars * self.RECORDSIZE))
 
         self.nnodevars = struct.unpack('i', self.fp.read(self.RECORDSIZE))[0]
         self.vars[1] = struct.unpack(
             '{0}i'.format(self.nnodevars),
-            self.fp.read(self.nnodevars*self.RECORDSIZE))
+            self.fp.read(self.nnodevars * self.RECORDSIZE))
 
         self.nlinkvars = struct.unpack('i', self.fp.read(self.RECORDSIZE))[0]
         self.vars[2] = struct.unpack(
             '{0}i'.format(self.nlinkvars),
-            self.fp.read(self.nlinkvars*self.RECORDSIZE))
+            self.fp.read(self.nlinkvars * self.RECORDSIZE))
 
         self.vars[3] = [0]
 
         self.nsystemvars = struct.unpack('i', self.fp.read(self.RECORDSIZE))[0]
         self.vars[4] = struct.unpack(
             '{0}i'.format(self.nsystemvars),
-            self.fp.read(self.nsystemvars*self.RECORDSIZE))
+            self.fp.read(self.nsystemvars * self.RECORDSIZE))
 
         # System vars do not have names per se, but made names = number labels
         self.names[4] = [self.varcode[4][i] for i in self.vars[4]]
 
-        self.startdate = struct.unpack('d', self.fp.read(2*self.RECORDSIZE))[0]
+        self.startdate = struct.unpack(
+            'd', self.fp.read(2 * self.RECORDSIZE))[0]
         days = int(self.startdate)
-        seconds = (self.startdate - days)*86400
+        seconds = (self.startdate - days) * 86400
         self.startdate = datetime.datetime(1899, 12, 30) + \
             datetime.timedelta(days=days, seconds=seconds)
 
@@ -299,11 +300,11 @@ class SwmmExtract():
 
         # Calculate the bytes for each time period when
         # reading the computed results
-        self.bytesperperiod = self.RECORDSIZE*(
+        self.bytesperperiod = self.RECORDSIZE * (
             2 +
-            self.SWMM_Nsubcatch*self.SWMM_Nsubcatchvars +
-            self.SWMM_Nnodes*self.nnodevars +
-            self.SWMM_Nlinks*self.nlinkvars +
+            self.SWMM_Nsubcatch * self.SWMM_Nsubcatchvars +
+            self.SWMM_Nnodes * self.nnodevars +
+            self.SWMM_Nlinks * self.nlinkvars +
             self.nsystemvars)
 
     def UpdateVarCode(self, typenumber):
@@ -339,32 +340,32 @@ class SwmmExtract():
 
         itemname, itemindex = self.NameCheck(itemtype, name)
 
-        date_offset = self.StartPos + period*self.bytesperperiod
+        date_offset = self.StartPos + period * self.bytesperperiod
 
         self.fp.seek(date_offset, 0)
-        date = struct.unpack('d', self.fp.read(2*self.RECORDSIZE))[0]
+        date = struct.unpack('d', self.fp.read(2 * self.RECORDSIZE))[0]
 
-        offset = date_offset + 2*self.RECORDSIZE  # skip the date
+        offset = date_offset + 2 * self.RECORDSIZE  # skip the date
 
         if itemtype == 0:
-            offset = offset + self.RECORDSIZE*(
-                itemindex*self.SWMM_Nsubcatchvars)
+            offset = offset + self.RECORDSIZE * (
+                itemindex * self.SWMM_Nsubcatchvars)
         if itemtype == 1:
-            offset = offset + self.RECORDSIZE*(
-                self.SWMM_Nsubcatch*self.SWMM_Nsubcatchvars +
-                itemindex*self.nnodevars)
+            offset = offset + self.RECORDSIZE * (
+                self.SWMM_Nsubcatch * self.SWMM_Nsubcatchvars +
+                itemindex * self.nnodevars)
         elif itemtype == 2:
-            offset = offset + self.RECORDSIZE*(
-                self.SWMM_Nsubcatch*self.SWMM_Nsubcatchvars +
-                self.SWMM_Nnodes*self.nnodevars +
-                itemindex*self.nlinkvars)
+            offset = offset + self.RECORDSIZE * (
+                self.SWMM_Nsubcatch * self.SWMM_Nsubcatchvars +
+                self.SWMM_Nnodes * self.nnodevars +
+                itemindex * self.nlinkvars)
         elif itemtype == 4:
-            offset = offset + self.RECORDSIZE*(
-                self.SWMM_Nsubcatch*self.SWMM_Nsubcatchvars +
-                self.SWMM_Nnodes*self.nnodevars +
-                self.SWMM_Nlinks*self.nlinkvars)
+            offset = offset + self.RECORDSIZE * (
+                self.SWMM_Nsubcatch * self.SWMM_Nsubcatchvars +
+                self.SWMM_Nnodes * self.nnodevars +
+                self.SWMM_Nlinks * self.nlinkvars)
 
-        offset = offset + self.RECORDSIZE*variableindex
+        offset = offset + self.RECORDSIZE * variableindex
 
         self.fp.seek(offset, 0)
         value = struct.unpack('f', self.fp.read(self.RECORDSIZE))[0]
@@ -377,9 +378,9 @@ class SwmmExtract():
         periods = [ntimes[0], ntimes[-1]]
         st_end = []
         for period in periods:
-            date_offset = self.StartPos + period*self.bytesperperiod
+            date_offset = self.StartPos + period * self.bytesperperiod
             self.fp.seek(date_offset, 0)
-            day = struct.unpack('d', self.fp.read(2*self.RECORDSIZE))[0]
+            day = struct.unpack('d', self.fp.read(2 * self.RECORDSIZE))[0]
             st_end.append(begindate + datetime.timedelta(days=int(day)))
         return st_end
 
@@ -412,7 +413,7 @@ def catalog(filename, itemtype='', tablefmt='simple', header='default'):
         plist = list(range(len(obj.itemlist)))
     if header == 'default':
         header = ['TYPE', 'NAME']
-    collect=[]
+    collect = []
     for i in plist:
         for oname in obj.names[i]:
             collect.append([obj.itemlist[i], oname])
@@ -452,7 +453,7 @@ def listdetail(filename,
     if header == "default":
         header = ['#Name'] + [PROPCODE[typenumber][i] for i in propnumbers]
 
-    collect=[]
+    collect = []
     for i, oname in enumerate(objectlist):
         printvar = [oname]
         for j in obj.prop[typenumber][i]:
@@ -492,8 +493,8 @@ def listvariables(filename, tablefmt='csv_nos', header='default'):
         for i in obj.vars[typenumber]:
             try:
                 collect.append([itemtype,
-                               obj.varcode[typenumber][i].decode(),
-                               i])
+                                obj.varcode[typenumber][i].decode(),
+                                i])
             except (TypeError, AttributeError):
                 collect.append([itemtype,
                                 str(obj.varcode[typenumber][i]),
@@ -573,7 +574,7 @@ def extract(filename, *labels):
     for label in labels:
         itemtype, name, variableindex = label.split(',')
         typenumber = obj.TypeCheck(itemtype)
-        #if itemtype != 'system':
+        # if itemtype != 'system':
         name = obj.NameCheck(itemtype, name)[0]
 
         obj.UpdateVarCode(typenumber)
@@ -585,7 +586,7 @@ def extract(filename, *labels):
             date, value = obj.GetSwmmResults(
                 typenumber, name, int(variableindex), time)
             days = int(date)
-            seconds = int((date - days)*86400)
+            seconds = int((date - days) * 86400)
             date = begindate + datetime.timedelta(
                 days=days, seconds=seconds)
             dates.append(date)

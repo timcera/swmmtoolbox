@@ -6,6 +6,10 @@ Reads and formats data from the SWMM 5 output file.
 from __future__ import absolute_import
 from __future__ import print_function
 
+from builtins import zip
+from builtins import str
+from builtins import range
+from builtins import object
 import sys
 import struct
 import datetime
@@ -123,15 +127,17 @@ SWMM_FlowUnits = {
 _LOCAL_DOCSTRINGS = tsutils.docstrings
 _LOCAL_DOCSTRINGS['filename'] = '''filename : str
         Filename of SWMM output file.  The SWMM model must complete
-        successfully for "swmmtoolbox" to correctly read it.'''
+        successfully for "swmmtoolbox" to correctly read it.
+        '''
 _LOCAL_DOCSTRINGS['itemtype'] = '''itemtype : str
         One of 'system', 'node', 'link', or 'pollutant' to identify the
-        type of data you want to extract.'''
+        type of data you want to extract.
+        '''
 _LOCAL_DOCSTRINGS['labels'] = '''labels : str
         The remaining arguments uniquely identify a time-series
         in the binary file.  The format is::
 
-            'TYPE,NAME,VARINDEX'.
+            'TYPE,NAME,VARINDEX'
 
         For example: 'node,C64,1 node,C63,1 ...'
 
@@ -141,10 +147,11 @@ _LOCAL_DOCSTRINGS['labels'] = '''labels : str
 
         VARINDEX can be retrieved with::
 
-            'swmmtoolbox listvariables filename.out' '''
+            'swmmtoolbox listvariables filename.out'
+        '''
 
 
-class SwmmExtract():
+class SwmmExtract(object):
     def __init__(self, filename):
 
         self.RECORDSIZE = 4
@@ -374,7 +381,7 @@ class SwmmExtract():
     def GetDates(self):
         """ Return Start and End Date Tuple """
         begindate = datetime.datetime(1899, 12, 30)
-        ntimes = range(self.SWMM_Nperiods)
+        ntimes = list(range(self.SWMM_Nperiods))
         periods = [ntimes[0], ntimes[-1]]
         st_end = []
         for period in periods:
@@ -561,7 +568,7 @@ def getdata(filename, *labels):
 @mando.command(formatter_class=RSTHelpFormatter, doctype='numpy')
 @tsutils.doc(_LOCAL_DOCSTRINGS)
 def extract(filename, *labels):
-    ''' Get the time series data for a particular object and variable
+    '''Get the time series data for a particular object and variable
 
     Parameters
     ----------
@@ -621,7 +628,7 @@ def extract_arr(filename, *labels):
 
         obj.UpdateVarCode(typenumber)
 
-        data = pd.np.zeros(len(range(obj.SWMM_Nperiods)))
+        data = pd.np.zeros(len(list(range(obj.SWMM_Nperiods))))
 
         for time in range(obj.SWMM_Nperiods):
             date, value = obj.GetSwmmResults(

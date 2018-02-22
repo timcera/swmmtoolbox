@@ -18,8 +18,6 @@ import os
 import mando
 from mando.rst_text_formatter import RSTHelpFormatter
 import pandas as pd
-from six.moves import range
-from six.moves import zip
 
 from tstoolbox import tsutils
 
@@ -81,7 +79,7 @@ VARCODE = {0: {0: 'Rainfall',
                14: 'Potential_PET'}}
 
 # Prior to 5.10.10
-VARCODE_old = {0: {0: 'Rainfall',
+VARCODE_OLD = {0: {0: 'Rainfall',
                    1: 'Snow_depth',
                    2: 'Evaporation_loss',
                    3: 'Runoff_rate',
@@ -113,8 +111,8 @@ VARCODE_old = {0: {0: 'Rainfall',
                    12: 'Volume_stored_water',
                    13: 'Evaporation_rate'}}
 
-# SWMM_FlowUnits is here, but currently not used.
-SWMM_FlowUnits = {
+# swmm_flowunits is here, but currently not used.
+_SWMM_FLOWUNITS = {
     0: 'CFS',
     1: 'GPM',
     2: 'MGD',
@@ -152,6 +150,7 @@ _LOCAL_DOCSTRINGS['labels'] = '''labels : str
 
 
 class SwmmExtract(object):
+    """The class that handles all extraction of data from the out file."""
     def __init__(self, filename):
 
         self.RECORDSIZE = 4
@@ -160,53 +159,65 @@ class SwmmExtract(object):
 
         self.fp.seek(-6 * self.RECORDSIZE, 2)
 
-        self.NamesStartPos, \
+        self.Namesstartpos, \
             self.offset0, \
-            self.StartPos, \
-            self.SWMM_Nperiods, \
-            errCode, \
+            self.startpos, \
+            self.swmm_nperiods, \
+            errcode, \
             magic2 = struct.unpack('6i', self.fp.read(6 * self.RECORDSIZE))
 
         self.fp.seek(0, 0)
         magic1 = struct.unpack('i', self.fp.read(self.RECORDSIZE))[0]
 
         if magic1 != 516114522:
-            print('First magic number incorrect.')
-            sys.exit(1)
+            raise ValueError('''
+*
+*   First magic number incorrect.
+*
+''')
         if magic2 != 516114522:
-            print('Second magic number incorrect.')
-            sys.exit(1)
-        if errCode != 0:
-            print('Error code in output file indicates a problem with the run')
-            sys.exit(1)
-        if self.SWMM_Nperiods == 0:
-            print('There are zero time periods in the output file')
-            sys.exit(1)
+            raise ValueError('''
+*
+*   Second magic number incorrect.
+*
+''')
+        if errcode != 0:
+            raise ValueError('''
+*
+*   Error code in output file indicates a problem with the run.
+*
+''')
+        if self.swmm_nperiods == 0:
+            raise ValueError('''
+*
+*   There are zero time periods in the output file.
+*
+''')
 
         # --- otherwise read additional parameters from start of file
-        version, \
-            self.SWMM_FlowUnits, \
-            self.SWMM_Nsubcatch, \
-            self.SWMM_Nnodes, \
-            self.SWMM_Nlinks, \
-            self.SWMM_Npolluts = struct.unpack('6i',
-                                               self.fp.read(6 * self.RECORDSIZE))
+        (version,
+         self.swmm_flowunits,
+         self.swmm_nsubcatch,
+         self.swmm_nnodes,
+         self.swmm_nlinks,
+         self.swmm_npolluts) = struct.unpack('6i',
+                                             self.fp.read(6 * self.RECORDSIZE))
         if version < 5100:
-            self.varcode = VARCODE_old
+            self.varcode = VARCODE_OLD
         else:
             self.varcode = VARCODE
 
         self.itemlist = ['subcatchment', 'node', 'link', 'pollutant', 'system']
 
         # Read in the names
-        self.fp.seek(self.NamesStartPos, 0)
+        self.fp.seek(self.Namesstartpos, 0)
         self.names = {0: [], 1: [], 2: [], 3: [], 4: []}
-        number_list = [self.SWMM_Nsubcatch,
-                       self.SWMM_Nnodes,
-                       self.SWMM_Nlinks,
-                       self.SWMM_Npolluts]
+        number_list = [self.swmm_nsubcatch,
+                       self.swmm_nnodes,
+                       self.swmm_nlinks,
+                       self.swmm_npolluts]
         for i, j in enumerate(number_list):
-            for k in range(j):
+            for _ in range(j):
                 stringsize = struct.unpack('i',
                                            self.fp.read(self.RECORDSIZE))[0]
                 self.names[i].append(
@@ -231,8 +242,8 @@ class SwmmExtract(object):
         # Read pollutant concentration codes
         # = Number of pollutants * 4 byte integers
         self.pollutant_codes = struct.unpack(
-            '{0}i'.format(self.SWMM_Npolluts),
-            self.fp.read(self.SWMM_Npolluts * self.RECORDSIZE))
+            '{0}i'.format(self.swmm_npolluts),
+            self.fp.read(self.swmm_npolluts * self.RECORDSIZE))
 
         self.propcode = {}
         self.prop = {0: [], 1: [], 2: []}
@@ -240,7 +251,7 @@ class SwmmExtract(object):
         self.propcode[0] = struct.unpack(
             '{0}i'.format(nsubprop),
             self.fp.read(nsubprop * self.RECORDSIZE))
-        for i in range(self.SWMM_Nsubcatch):
+        for i in range(self.swmm_nsubcatch):
             rprops = struct.unpack(
                 '{0}f'.format(nsubprop),
                 self.fp.read(nsubprop * self.RECORDSIZE))
@@ -250,7 +261,7 @@ class SwmmExtract(object):
         self.propcode[1] = struct.unpack(
             '{0}i'.format(nnodeprop),
             self.fp.read(nnodeprop * self.RECORDSIZE))
-        for i in range(self.SWMM_Nnodes):
+        for i in range(self.swmm_nnodes):
             rprops = struct.unpack(
                 'i{0}f'.format(nnodeprop - 1),
                 self.fp.read(nnodeprop * self.RECORDSIZE))
@@ -260,18 +271,18 @@ class SwmmExtract(object):
         self.propcode[2] = struct.unpack(
             '{0}i'.format(nlinkprop),
             self.fp.read(nlinkprop * self.RECORDSIZE))
-        for i in range(self.SWMM_Nlinks):
+        for i in range(self.swmm_nlinks):
             rprops = struct.unpack(
                 'i{0}f'.format(nlinkprop - 1),
                 self.fp.read(nlinkprop * self.RECORDSIZE))
             self.prop[2].append(list(zip(self.propcode[2], rprops)))
 
         self.vars = {}
-        self.SWMM_Nsubcatchvars = struct.unpack(
+        self.swmm_nsubcatchvars = struct.unpack(
             'i', self.fp.read(self.RECORDSIZE))[0]
         self.vars[0] = struct.unpack(
-            '{0}i'.format(self.SWMM_Nsubcatchvars),
-            self.fp.read(self.SWMM_Nsubcatchvars * self.RECORDSIZE))
+            '{0}i'.format(self.swmm_nsubcatchvars),
+            self.fp.read(self.swmm_nsubcatchvars * self.RECORDSIZE))
 
         self.nnodevars = struct.unpack('i', self.fp.read(self.RECORDSIZE))[0]
         self.vars[1] = struct.unpack(
@@ -309,45 +320,56 @@ class SwmmExtract(object):
         # reading the computed results
         self.bytesperperiod = self.RECORDSIZE * (
             2 +
-            self.SWMM_Nsubcatch * self.SWMM_Nsubcatchvars +
-            self.SWMM_Nnodes * self.nnodevars +
-            self.SWMM_Nlinks * self.nlinkvars +
+            self.swmm_nsubcatch * self.swmm_nsubcatchvars +
+            self.swmm_nnodes * self.nnodevars +
+            self.swmm_nlinks * self.nlinkvars +
             self.nsystemvars)
 
-    def UpdateVarCode(self, typenumber):
+    def update_var_code(self, typenumber):
         start = len(self.varcode[typenumber])
         end = start + len(self.names[3])
         nlabels = list(range(start, end))
         ndict = dict(list(zip(nlabels, self.names[3])))
         self.varcode[typenumber].update(ndict)
 
-    def TypeCheck(self, itemtype):
+    def type_check(self, itemtype):
         if itemtype in [0, 1, 2, 3, 4]:
             return itemtype
         try:
             typenumber = self.itemlist.index(itemtype)
         except ValueError:
-            print('Type argument is incorrect')
-            sys.exit(1)
+            raise ValueError('''
+*
+*   Type argument "{0}" is incorrect.
+*   Must be in "{1}".
+*
+'''.format(itemtype, list(range(5)) + self.itemlist))
         return typenumber
 
-    def NameCheck(self, itemtype, itemname):
-        self.itemtype = self.TypeCheck(itemtype)
+    def name_check(self, itemtype, itemname):
+        self.itemtype = self.type_check(itemtype)
         try:
             itemindex = self.names[self.itemtype].index(itemname)
         except (ValueError, KeyError):
-            print('%s was not found in %s list' % (itemname, itemtype))
-            sys.exit(1)
+            raise ValueError('''
+*
+*   {0} was not found in "{1}" list.
+*
+'''.format(itemname, itemtype))
         return (itemname, itemindex)
 
-    def GetSwmmResults(self, itemtype, name, variableindex, period):
+    def get_swmm_results(self, itemtype, name, variableindex, period):
         if itemtype not in [0, 1, 2, 4]:
-            print('Type must be one of subcatchment, node. link, or system')
-            sys.exit(1)
+            raise ValueError('''
+*
+*   Type must be one of subcatchment (0), node (1). link (2), or system (4).
+*   You gave "{0}".
+*
+'''.format(itemtype))
 
-        itemname, itemindex = self.NameCheck(itemtype, name)
+        _, itemindex = self.name_check(itemtype, name)
 
-        date_offset = self.StartPos + period * self.bytesperperiod
+        date_offset = self.startpos + period * self.bytesperperiod
 
         self.fp.seek(date_offset, 0)
         date = struct.unpack('d', self.fp.read(2 * self.RECORDSIZE))[0]
@@ -356,21 +378,21 @@ class SwmmExtract(object):
 
         if itemtype == 0:
             offset = offset + self.RECORDSIZE * (
-                itemindex * self.SWMM_Nsubcatchvars)
+                itemindex * self.swmm_nsubcatchvars)
         if itemtype == 1:
             offset = offset + self.RECORDSIZE * (
-                self.SWMM_Nsubcatch * self.SWMM_Nsubcatchvars +
+                self.swmm_nsubcatch * self.swmm_nsubcatchvars +
                 itemindex * self.nnodevars)
         elif itemtype == 2:
             offset = offset + self.RECORDSIZE * (
-                self.SWMM_Nsubcatch * self.SWMM_Nsubcatchvars +
-                self.SWMM_Nnodes * self.nnodevars +
+                self.swmm_nsubcatch * self.swmm_nsubcatchvars +
+                self.swmm_nnodes * self.nnodevars +
                 itemindex * self.nlinkvars)
         elif itemtype == 4:
             offset = offset + self.RECORDSIZE * (
-                self.SWMM_Nsubcatch * self.SWMM_Nsubcatchvars +
-                self.SWMM_Nnodes * self.nnodevars +
-                self.SWMM_Nlinks * self.nlinkvars)
+                self.swmm_nsubcatch * self.swmm_nsubcatchvars +
+                self.swmm_nnodes * self.nnodevars +
+                self.swmm_nlinks * self.nlinkvars)
 
         offset = offset + self.RECORDSIZE * variableindex
 
@@ -378,14 +400,14 @@ class SwmmExtract(object):
         value = struct.unpack('f', self.fp.read(self.RECORDSIZE))[0]
         return (date, value)
 
-    def GetDates(self):
-        """ Return Start and End Date Tuple """
+    def get_dates(self):
+        """Return start and end date tuple."""
         begindate = datetime.datetime(1899, 12, 30)
-        ntimes = list(range(self.SWMM_Nperiods))
+        ntimes = list(range(self.swmm_nperiods))
         periods = [ntimes[0], ntimes[-1]]
         st_end = []
         for period in periods:
-            date_offset = self.StartPos + period * self.bytesperperiod
+            date_offset = self.startpos + period * self.bytesperperiod
             self.fp.seek(date_offset, 0)
             day = struct.unpack('d', self.fp.read(2 * self.RECORDSIZE))[0]
             st_end.append(begindate + datetime.timedelta(days=int(day)))
@@ -394,15 +416,14 @@ class SwmmExtract(object):
 
 @mando.command()
 def about():
-    """Display version number and system information.
-    """
+    """Display version number and system information."""
     tsutils.about(__name__)
 
 
 @mando.command(formatter_class=RSTHelpFormatter, doctype='numpy')
 @tsutils.doc(_LOCAL_DOCSTRINGS)
 def catalog(filename, itemtype='', tablefmt='simple', header='default'):
-    ''' List the catalog of objects in output file
+    """List the catalog of objects in output file
 
     Parameters
     ----------
@@ -411,10 +432,10 @@ def catalog(filename, itemtype='', tablefmt='simple', header='default'):
     {tablefmt}
     {header}
 
-    '''
+    """
     obj = SwmmExtract(filename)
     if itemtype:
-        typenumber = obj.TypeCheck(itemtype)
+        typenumber = obj.type_check(itemtype)
         plist = [typenumber]
     else:
         plist = list(range(len(obj.itemlist)))
@@ -436,7 +457,7 @@ def listdetail(filename,
                name='',
                tablefmt='simple',
                header='default'):
-    ''' List nodes and metadata in output file.
+    """List nodes and metadata in output file.
 
     Parameters
     ----------
@@ -448,11 +469,11 @@ def listdetail(filename,
     {tablefmt}
     {header}
 
-    '''
+    """
     obj = SwmmExtract(filename)
-    typenumber = obj.TypeCheck(itemtype)
+    typenumber = obj.type_check(itemtype)
     if name:
-        objectlist = [obj.NameCheck(itemtype, name)[0]]
+        objectlist = [obj.name_check(itemtype, name)[0]]
     else:
         objectlist = obj.names[typenumber]
 
@@ -469,7 +490,16 @@ def listdetail(filename,
             else:
                 printvar.append(j[1])
         collect.append(printvar)
-    return tsutils.printiso(collect,
+    df = pd.DataFrame(collect)
+    cheader = []
+    for head in header:
+        if head not in cheader:
+            cheader.append(head)
+        else:
+            cnt = cheader.count(head)
+            cheader.append('{0}.{1}'.format(head, cnt))
+    df.columns = cheader
+    return tsutils.printiso(df,
                             tablefmt=tablefmt,
                             headers=header)
 
@@ -477,15 +507,17 @@ def listdetail(filename,
 @mando.command(formatter_class=RSTHelpFormatter, doctype='numpy')
 @tsutils.doc(_LOCAL_DOCSTRINGS)
 def listvariables(filename, tablefmt='csv_nos', header='default'):
-    ''' List variables available for each type
-        (subcatchment, node, link, pollutant, system)
+    """List variables available for each type.
+
+    The type are "subcatchment", "node", "link", "pollutant", "system".
 
     Parameters
     ----------
     {filename}
     {tablefmt}
     {header}
-    '''
+
+    """
     obj = SwmmExtract(filename)
     if header == 'default':
         header = ['TYPE', 'DESCRIPTION', 'VARINDEX']
@@ -493,9 +525,9 @@ def listvariables(filename, tablefmt='csv_nos', header='default'):
     # but part of subcatchment, node, and link...
     collect = []
     for itemtype in ['subcatchment', 'node', 'link', 'system']:
-        typenumber = obj.TypeCheck(itemtype)
+        typenumber = obj.type_check(itemtype)
 
-        obj.UpdateVarCode(typenumber)
+        obj.update_var_code(typenumber)
 
         for i in obj.vars[typenumber]:
             try:
@@ -514,7 +546,7 @@ def listvariables(filename, tablefmt='csv_nos', header='default'):
 @mando.command(formatter_class=RSTHelpFormatter, doctype='numpy')
 @tsutils.doc(_LOCAL_DOCSTRINGS)
 def stdtoswmm5(start_date=None, end_date=None, input_ts='-'):
-    ''' Take the toolbox standard format and return SWMM5 format.
+    """Take the toolbox standard format and return SWMM5 format.
 
     Toolbox standard::
 
@@ -536,7 +568,7 @@ def stdtoswmm5(start_date=None, end_date=None, input_ts='-'):
     {start_date}
     {end_date}
 
-    '''
+    """
     import csv
     sys.tracebacklimit = 1000
     tsd = tsutils.read_iso_ts(input_ts)[start_date:end_date]
@@ -560,37 +592,36 @@ def stdtoswmm5(start_date=None, end_date=None, input_ts='-'):
 @mando.command(formatter_class=RSTHelpFormatter, doctype='numpy')
 @tsutils.doc(_LOCAL_DOCSTRINGS)
 def getdata(filename, *labels):
-    ''' DEPRECATED: Use 'extract' instead.
-    '''
+    """DEPRECATED: Use 'extract' instead."""
     return extract(filename, *labels)
 
 
 @mando.command(formatter_class=RSTHelpFormatter, doctype='numpy')
 @tsutils.doc(_LOCAL_DOCSTRINGS)
 def extract(filename, *labels):
-    '''Get the time series data for a particular object and variable
+    """Get the time series data for a particular object and variable.
 
     Parameters
     ----------
     {filename}
     {labels}
 
-    '''
+    """
     obj = SwmmExtract(filename)
     jtsd = []
     for label in labels:
         itemtype, name, variableindex = label.split(',')
-        typenumber = obj.TypeCheck(itemtype)
+        typenumber = obj.type_check(itemtype)
         # if itemtype != 'system':
-        name = obj.NameCheck(itemtype, name)[0]
+        name = obj.name_check(itemtype, name)[0]
 
-        obj.UpdateVarCode(typenumber)
+        obj.update_var_code(typenumber)
 
         begindate = datetime.datetime(1899, 12, 30)
         dates = []
         values = []
-        for time in range(obj.SWMM_Nperiods):
-            date, value = obj.GetSwmmResults(
+        for time in range(obj.swmm_nperiods):
+            date, value = obj.get_swmm_results(
                 typenumber, name, int(variableindex), time)
             days = int(date)
             seconds = int((date - days) * 86400)
@@ -608,8 +639,7 @@ def extract(filename, *labels):
 
 @tsutils.doc(_LOCAL_DOCSTRINGS)
 def extract_arr(filename, *labels):
-    """
-    Same as extract except it returns the raw numpy array.
+    """Same as extract except it returns the raw numpy array.
 
     Available only within Python API
 
@@ -622,17 +652,19 @@ def extract_arr(filename, *labels):
     obj = SwmmExtract(filename)
     for label in labels:
         itemtype, name, variableindex = label.split(',')
-        typenumber = obj.TypeCheck(itemtype)
+        typenumber = obj.type_check(itemtype)
         if itemtype != 'system':
-            name = obj.NameCheck(itemtype, name)[0]
+            name = obj.name_check(itemtype, name)[0]
 
-        obj.UpdateVarCode(typenumber)
+        obj.update_var_code(typenumber)
 
-        data = pd.np.zeros(len(list(range(obj.SWMM_Nperiods))))
+        data = pd.np.zeros(len(list(range(obj.swmm_nperiods))))
 
-        for time in range(obj.SWMM_Nperiods):
-            date, value = obj.GetSwmmResults(
-                typenumber, name, int(variableindex), time)
+        for time in range(obj.swmm_nperiods):
+            _, value = obj.get_swmm_results(typenumber,
+                                            name,
+                                            int(variableindex),
+                                            time)
             data[time] = value
 
     return data

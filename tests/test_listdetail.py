@@ -39,19 +39,23 @@ def capture(func, *args, **kwds):
 class TestListdetail(TestCase):
     def setUp(self):
         listdetail_node_fname = os.path.join('tests', 'listdetail_node.csv')
-        self.listdetail_node = open(listdetail_node_fname).readlines()
+        self.listdetail_node = pd.read_csv(listdetail_node_fname,
+                                           sep=',',
+                                           skipinitialspace=True)
 
         listdetail_link_fname = os.path.join('tests', 'listdetail_link.csv')
-        self.listdetail_link = open(listdetail_link_fname).readlines()
+        self.listdetail_link = pd.read_csv(listdetail_link_fname,
+                                           sep=',',
+                                           skipinitialspace=True)
 
     def test_listdetail_node(self):
         out = swmmtoolbox.listdetail(os.path.join('tests', 'frutal.out'),
                                      'node')
         self.maxDiff = None
-        self.assertEqual(out, self.listdetail_node)
+        assert_frame_equal(out, self.listdetail_node)
 
     def test_listdetail_link(self):
         out = swmmtoolbox.listdetail(os.path.join('tests', 'frutal.out'),
                                      'link')
         self.maxDiff = None
-        self.assertEqual(out, self.listdetail_link)
+        assert_frame_equal(out, self.listdetail_link)

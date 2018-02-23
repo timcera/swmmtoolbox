@@ -17,7 +17,7 @@ install_requires = [
     # http://packages.python.org/distribute/setuptools.html#declaring-dependencies
     'tstoolbox >= 1.12.12.9',
     'sphinx >= 1.3',
-    'six',
+    'future',
 ]
 
 setup(name='swmmtoolbox',

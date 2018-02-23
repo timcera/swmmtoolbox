@@ -625,6 +625,12 @@ def extract(filename, *labels):
                 typenumber, name, int(variableindex), time)
             days = int(date)
             seconds = int((date - days) * 86400)
+            extra = seconds % 10
+            if extra != 0:
+                if extra == 9:
+                    seconds = seconds + 1
+                if extra == 1:
+                    seconds = seconds - 1
             date = begindate + datetime.timedelta(
                 days=days, seconds=seconds)
             dates.append(date)

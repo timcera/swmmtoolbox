@@ -20,6 +20,7 @@ Table of Contents
    usage
    function_summary
    contributing
+   authors
    license
 
 Other Projects

@@ -1,22 +1,22 @@
 
 # Example package with a console entry point
-"""
-Reads and formats data from the SWMM 5 output file.
-"""
+"""Reads and formats data from the SWMM 5 output file."""
+
 from __future__ import absolute_import
 from __future__ import print_function
 
-from builtins import zip
-from builtins import str
-from builtins import range
 from builtins import object
-import sys
-import struct
+from builtins import range
+from builtins import str
+from builtins import zip
 import datetime
 import os
+import struct
+import sys
 
 import mando
 from mando.rst_text_formatter import RSTHelpFormatter
+
 import pandas as pd
 
 from tstoolbox import tsutils
@@ -123,15 +123,15 @@ _SWMM_FLOWUNITS = {
 
 
 _LOCAL_DOCSTRINGS = tsutils.docstrings
-_LOCAL_DOCSTRINGS['filename'] = '''filename : str
+_LOCAL_DOCSTRINGS['filename'] = """filename : str
         Filename of SWMM output file.  The SWMM model must complete
         successfully for "swmmtoolbox" to correctly read it.
-        '''
-_LOCAL_DOCSTRINGS['itemtype'] = '''itemtype : str
+        """
+_LOCAL_DOCSTRINGS['itemtype'] = """itemtype : str
         One of 'system', 'node', 'link', or 'pollutant' to identify the
         type of data you want to extract.
-        '''
-_LOCAL_DOCSTRINGS['labels'] = '''labels : str
+        """
+_LOCAL_DOCSTRINGS['labels'] = """labels : str
         The remaining arguments uniquely identify a time-series
         in the binary file.  The format is::
 
@@ -146,11 +146,12 @@ _LOCAL_DOCSTRINGS['labels'] = '''labels : str
         VARINDEX can be retrieved with::
 
             'swmmtoolbox listvariables filename.out'
-        '''
+        """
 
 
 class SwmmExtract(object):
     """The class that handles all extraction of data from the out file."""
+
     def __init__(self, filename):
 
         self.RECORDSIZE = 4
@@ -170,29 +171,29 @@ class SwmmExtract(object):
         magic1 = struct.unpack('i', self.fp.read(self.RECORDSIZE))[0]
 
         if magic1 != 516114522:
-            raise ValueError('''
+            raise ValueError("""
 *
 *   First magic number incorrect.
 *
-''')
+""")
         if magic2 != 516114522:
-            raise ValueError('''
+            raise ValueError("""
 *
 *   Second magic number incorrect.
 *
-''')
+""")
         if errcode != 0:
-            raise ValueError('''
+            raise ValueError("""
 *
 *   Error code in output file indicates a problem with the run.
 *
-''')
+""")
         if self.swmm_nperiods == 0:
-            raise ValueError('''
+            raise ValueError("""
 *
 *   There are zero time periods in the output file.
 *
-''')
+""")
 
         # --- otherwise read additional parameters from start of file
         (version,
@@ -338,12 +339,12 @@ class SwmmExtract(object):
         try:
             typenumber = self.itemlist.index(itemtype)
         except ValueError:
-            raise ValueError('''
+            raise ValueError("""
 *
 *   Type argument "{0}" is incorrect.
 *   Must be in "{1}".
 *
-'''.format(itemtype, list(range(5)) + self.itemlist))
+""".format(itemtype, list(range(5)) + self.itemlist))
         return typenumber
 
     def name_check(self, itemtype, itemname):
@@ -351,21 +352,21 @@ class SwmmExtract(object):
         try:
             itemindex = self.names[self.itemtype].index(itemname)
         except (ValueError, KeyError):
-            raise ValueError('''
+            raise ValueError("""
 *
 *   {0} was not found in "{1}" list.
 *
-'''.format(itemname, itemtype))
+""".format(itemname, itemtype))
         return (itemname, itemindex)
 
     def get_swmm_results(self, itemtype, name, variableindex, period):
         if itemtype not in [0, 1, 2, 4]:
-            raise ValueError('''
+            raise ValueError("""
 *
 *   Type must be one of subcatchment (0), node (1). link (2), or system (4).
 *   You gave "{0}".
 *
-'''.format(itemtype))
+""".format(itemtype))
 
         _, itemindex = self.name_check(itemtype, name)
 
@@ -423,7 +424,7 @@ def about():
 @mando.command(formatter_class=RSTHelpFormatter, doctype='numpy')
 @tsutils.doc(_LOCAL_DOCSTRINGS)
 def catalog(filename, itemtype='', tablefmt='simple', header='default'):
-    """List the catalog of objects in output file
+    """List the catalog of objects in output file.
 
     Parameters
     ----------
@@ -464,7 +465,9 @@ def listdetail(filename,
     {filename}
     {itemtype}
     name : str
-        Optional specific name to print only that entry.  This can be
+        [optional, default is '']
+
+        Specific name to print only that entry.  This can be
         looked up using 'listvariables'.
     {tablefmt}
     {header}
@@ -478,7 +481,7 @@ def listdetail(filename,
         objectlist = obj.names[typenumber]
 
     propnumbers = obj.propcode[typenumber]
-    if header == "default":
+    if header == 'default':
         header = ['#Name'] + [PROPCODE[typenumber][i] for i in propnumbers]
 
     collect = []
@@ -645,7 +648,7 @@ def extract(filename, *labels):
 
 @tsutils.doc(_LOCAL_DOCSTRINGS)
 def extract_arr(filename, *labels):
-    """Same as extract except it returns the raw numpy array.
+    """Extract and return the raw numpy array.
 
     Available only within Python API
 

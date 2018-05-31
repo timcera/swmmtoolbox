@@ -135,18 +135,54 @@ _LOCAL_DOCSTRINGS['labels'] = """labels : str
         The remaining arguments uniquely identify a time-series
         in the binary file.  The format is::
 
-            'TYPE,NAME,VARINDEX'
+            'TYPE,NAME,VAR'
 
-        For example: 'node,C64,1 node,C63,1 ...'
+        For example: 'link,41a,Flow_rate node,C63,1 ...'
 
-        TYPE and NAME can be retrieved with::
-
-            'swmmtoolbox list filename.out'
-
-        VARINDEX can be retrieved with::
+        The VAR part of the label can be the name of the variable or the index.
+        The available variables and their indices can be found using::
 
             'swmmtoolbox listvariables filename.out'
+
+        All of the available labels can be listed with::
+
+            'swmmtoolbox catalog filename.out'
+
+        There is a wild card feature for the labels, where leaving the part out
+        will return all labels that match all other parts.  For example,
+
+        +-----------------+-------------------------------------+
+        | link,b52,       | Return all variables for link "b52" |
+        +-----------------+-------------------------------------+
+        | link,,Flow_rate | Return "Flow_rate" for all links    |
+        +-----------------+-------------------------------------+
+
+        Note that all labels require two commas and no spaces.
+
         """
+
+
+def tupleMatch(a, b):
+    '''Part of partial ordered matching.
+    See http://stackoverflow.com/a/4559604
+    '''
+    return len(a) == len(b) and all(i is None or j is None or i == j
+                                    for i, j in zip(a, b))
+
+
+def tupleCombine(a, b):
+    '''Part of partial ordered matching.
+    See http://stackoverflow.com/a/4559604
+    '''
+    return tuple([i is None and j or i for i, j in zip(a, b)])
+
+
+def tupleSearch(findme, haystack):
+    '''Partial ordered matching with 'None' as wildcard
+    See http://stackoverflow.com/a/4559604
+    '''
+    return [(i, tupleCombine(findme, h))
+            for i, h in enumerate(haystack) if tupleMatch(findme, h)]
 
 
 class SwmmExtract(object):
@@ -185,9 +221,9 @@ class SwmmExtract(object):
         if errcode != 0:
             raise ValueError("""
 *
-*   Error code in output file indicates a problem with the run.
+*   Error code "{0}" in output file indicates a problem with the run.
 *
-""")
+""".format(errcode))
         if self.swmm_nperiods == 0:
             raise ValueError("""
 *
@@ -229,7 +265,7 @@ class SwmmExtract(object):
         for key in self.names:
             collect_names = []
             for name in self.names[key]:
-                # Why would SMMM allow spaces in names?  Anyway...
+                # Why would SWMM allow spaces in names?  Anyway...
                 try:
                     rname = str(name, 'ascii', 'replace')
                 except TypeError:
@@ -423,8 +459,15 @@ def about():
 
 @mando.command(formatter_class=RSTHelpFormatter, doctype='numpy')
 @tsutils.doc(_LOCAL_DOCSTRINGS)
-def catalog(filename, itemtype='', tablefmt='simple', header='default'):
+def catalog(filename,
+            itemtype='',
+            tablefmt='csv_nos',
+            header='default',
+            retval=False):
     """List the catalog of objects in output file.
+
+    This catalog list is all of the labels that can be used in the extract
+    routine.
 
     Parameters
     ----------
@@ -441,11 +484,25 @@ def catalog(filename, itemtype='', tablefmt='simple', header='default'):
     else:
         plist = list(range(len(obj.itemlist)))
     if header == 'default':
-        header = ['TYPE', 'NAME']
+        header = ['TYPE', 'NAME', 'VARIABLE']
     collect = []
+    for itemtype in ['subcatchment', 'node', 'link', 'system']:
+        typenumber = obj.type_check(itemtype)
+        obj.update_var_code(typenumber)
     for i in plist:
+        typenumber = obj.type_check(obj.itemlist[i])
         for oname in obj.names[i]:
-            collect.append([obj.itemlist[i], oname])
+            if obj.itemlist[i] == 'pollutant':
+                continue
+            if obj.itemlist[i] == 'system':
+                collect.append(['system', oname, oname])
+                continue
+            for j in obj.vars[typenumber]:
+                collect.append([obj.itemlist[i],
+                                oname,
+                                obj.varcode[typenumber][j]])
+    if retval is True:
+        return collect
     return tsutils.printiso(collect,
                             tablefmt=tablefmt,
                             headers=header)
@@ -509,7 +566,10 @@ def listdetail(filename,
 
 @mando.command(formatter_class=RSTHelpFormatter, doctype='numpy')
 @tsutils.doc(_LOCAL_DOCSTRINGS)
-def listvariables(filename, tablefmt='csv_nos', header='default'):
+def listvariables(filename,
+                  tablefmt='csv_nos',
+                  header='default',
+                  retval=False):
     """List variables available for each type.
 
     The type are "subcatchment", "node", "link", "pollutant", "system".
@@ -541,6 +601,8 @@ def listvariables(filename, tablefmt='csv_nos', header='default'):
                 collect.append([itemtype,
                                 str(obj.varcode[typenumber][i]),
                                 str(i)])
+    if retval is True:
+        return collect
     return tsutils.printiso(collect,
                             tablefmt=tablefmt,
                             headers=header)
@@ -604,28 +666,56 @@ def getdata(filename, *labels):
 def extract(filename, *labels):
     """Get the time series data for a particular object and variable.
 
+
     Parameters
     ----------
     {filename}
     {labels}
 
     """
+    nlabels = []
+    for label in labels:
+        words = label.split(',')
+        if len(words) != 3:
+            raise ValueError('''
+*
+*   The label '{0}' has the wrong number of entries.  Should have 3.
+*
+'''.format(label))
+
+        words = [None if i is '' else i for i in words]
+        if None not in words:
+            nlabels.append(words)
+            continue
+        res = tupleSearch(words, catalog(filename, retval=True))
+        for index, lab in res:
+            nlabels.append(lab)
+
     obj = SwmmExtract(filename)
     jtsd = []
-    for label in labels:
-        itemtype, name, variableindex = label.split(',')
+
+    for itemtype in ['subcatchment', 'node', 'link', 'system']:
         typenumber = obj.type_check(itemtype)
-        # if itemtype != 'system':
+        obj.update_var_code(typenumber)
+
+    for itemtype, name, variablename in nlabels:
+        typenumber = obj.type_check(itemtype)
+
         name = obj.name_check(itemtype, name)[0]
 
-        obj.update_var_code(typenumber)
+        inv_varcode_map = dict(zip(obj.varcode[typenumber].values(),
+                                   obj.varcode[typenumber].keys()))
+        try:
+            variableindex = int(variablename)
+        except ValueError:
+            variableindex = inv_varcode_map[variablename]
 
         begindate = datetime.datetime(1899, 12, 30)
         dates = []
         values = []
         for time in range(obj.swmm_nperiods):
             date, value = obj.get_swmm_results(
-                typenumber, name, int(variableindex), time)
+                typenumber, name, variableindex, time)
             days = int(date)
             seconds = int((date - days) * 86400)
             extra = seconds % 10
@@ -638,10 +728,12 @@ def extract(filename, *labels):
                 days=days, seconds=seconds)
             dates.append(date)
             values.append(value)
+        if itemtype == 'system':
+            name = ''
         jtsd.append(pd.DataFrame(
             pd.Series(values, index=dates),
             columns=['{0}_{1}_{2}'.format(
-                itemtype, name, obj.varcode[typenumber][int(variableindex)])]))
+                itemtype, name, obj.varcode[typenumber][variableindex])]))
     result = pd.concat(jtsd, axis=1, join_axes=[jtsd[0].index])
     return tsutils.printiso(result)
 

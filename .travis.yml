@@ -4,6 +4,7 @@ python:
   - 2.7
   - 3.4
   - 3.5
+  - 3.6
 
 # Setup anaconda
 before_install:
@@ -13,10 +14,7 @@ before_install:
 install:
   - pip install --upgrade pip
   - pip install wheel
-  - pip install numpy
   - pip install scipy
-  - pip install pandas
-  - pip install matplotlib
   - pip install coveralls
   - python setup.py install
 

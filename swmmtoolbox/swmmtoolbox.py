@@ -673,6 +673,7 @@ def extract(filename, *labels):
     {labels}
 
     """
+    obj = SwmmExtract(filename)
     nlabels = []
     for label in labels:
         words = label.split(',')
@@ -687,17 +688,21 @@ def extract(filename, *labels):
         if None not in words:
             nlabels.append(words)
             continue
+        try:
+            words[2] = int(words[2])
+            typenumber = obj.type_check(words[2])
+            words[2] = obj.varcode[typenumber][words[2]]
+        except (ValueError, TypeError):
+            pass
         res = tupleSearch(words, catalog(filename, retval=True))
         for index, lab in res:
             nlabels.append(lab)
 
-    obj = SwmmExtract(filename)
     jtsd = []
 
     for itemtype in ['subcatchment', 'node', 'link', 'system']:
         typenumber = obj.type_check(itemtype)
         obj.update_var_code(typenumber)
-
     for itemtype, name, variablename in nlabels:
         typenumber = obj.type_check(itemtype)
 
@@ -706,16 +711,17 @@ def extract(filename, *labels):
         inv_varcode_map = dict(zip(obj.varcode[typenumber].values(),
                                    obj.varcode[typenumber].keys()))
         try:
-            variableindex = int(variablename)
+            variableindex = inv_varcode_map[int(variablename)]
         except ValueError:
             variableindex = inv_varcode_map[variablename]
-
         begindate = datetime.datetime(1899, 12, 30)
         dates = []
         values = []
         for time in range(obj.swmm_nperiods):
-            date, value = obj.get_swmm_results(
-                typenumber, name, variableindex, time)
+            date, value = obj.get_swmm_results(typenumber,
+                                               name,
+                                               variableindex,
+                                               time)
             days = int(date)
             seconds = int((date - days) * 86400)
             extra = seconds % 10
@@ -724,17 +730,20 @@ def extract(filename, *labels):
                     seconds = seconds + 1
                 if extra == 1:
                     seconds = seconds - 1
-            date = begindate + datetime.timedelta(
-                days=days, seconds=seconds)
+            date = begindate + datetime.timedelta(days=days,
+                                                  seconds=seconds)
             dates.append(date)
             values.append(value)
         if itemtype == 'system':
             name = ''
         jtsd.append(pd.DataFrame(
             pd.Series(values, index=dates),
-            columns=['{0}_{1}_{2}'.format(
-                itemtype, name, obj.varcode[typenumber][variableindex])]))
-    result = pd.concat(jtsd, axis=1, join_axes=[jtsd[0].index])
+            columns=['{0}_{1}_{2}'.format(itemtype,
+                                          name,
+                    obj.varcode[typenumber][variableindex])]))
+    result = pd.concat(jtsd,
+                       axis=1,
+                       join_axes=[jtsd[0].index])
     return tsutils.printiso(result)
 
 

@@ -50,6 +50,5 @@ setup(name='swmmtoolbox',
       entry_points={
           'console_scripts':
               ['swmmtoolbox=swmmtoolbox.swmmtoolbox:main']
-      },
-      python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*',
+      }
       )

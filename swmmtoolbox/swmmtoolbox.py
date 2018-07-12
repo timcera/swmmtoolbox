@@ -475,8 +475,11 @@ def catalog(filename,
     {itemtype}
     {tablefmt}
     {header}
+    retval
+        [optional, default is False]
 
-    """
+        Whether to just return a dictionary.  Only useful when using the Python
+        API."""
     obj = SwmmExtract(filename)
     if itemtype:
         typenumber = obj.type_check(itemtype)
@@ -579,8 +582,11 @@ def listvariables(filename,
     {filename}
     {tablefmt}
     {header}
+    retval
+        [optional, default is False]
 
-    """
+        Whether to just return a dictionary.  Only useful when using the Python
+        API."""
     obj = SwmmExtract(filename)
     if header == 'default':
         header = ['TYPE', 'DESCRIPTION', 'VARINDEX']

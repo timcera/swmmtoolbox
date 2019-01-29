@@ -14,3 +14,6 @@
     :alt: swmmtoolbox license
     :target: https://pypi.python.org/pypi/swmmtoolbox/
 
+.. image:: http://img.shields.io/pypi/dd/swmmtoolbox.svg
+    :alt: swmmtoolbox downloads
+    :target: https://pypi.python.org/pypi/swmmtoolbox/

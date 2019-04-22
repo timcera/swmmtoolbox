@@ -416,7 +416,7 @@ class SwmmExtract(object):
         if itemtype == 0:
             offset = offset + self.RECORDSIZE * (
                 itemindex * self.swmm_nsubcatchvars)
-        if itemtype == 1:
+        elif itemtype == 1:
             offset = offset + self.RECORDSIZE * (
                 self.swmm_nsubcatch * self.swmm_nsubcatchvars +
                 itemindex * self.nnodevars)
@@ -628,10 +628,10 @@ def stdtoswmm5(start_date=None, end_date=None, input_ts='-'):
 
     SWMM5 format::
 
-        ; comment line
-        01/01/2000 00:00, 45.6
-        01/01/2000 01:00, 45.2
-        ...
+       ; comment line
+       01/01/2000 00:00, 45.6
+       01/01/2000 01:00, 45.2
+       ...
 
     Parameters
     ----------
@@ -667,11 +667,13 @@ def getdata(filename, *labels):
     return extract(filename, *labels)
 
 
-@mando.command(formatter_class=RSTHelpFormatter, doctype='numpy')
+@mando.command('extract',
+               formatter_class=RSTHelpFormatter,
+               doctype='numpy')
 @tsutils.doc(_LOCAL_DOCSTRINGS)
-def extract(filename, *labels):
+def extract_cli(filename,
+                *labels):
     """Get the time series data for a particular object and variable.
-
 
     Parameters
     ----------
@@ -679,6 +681,13 @@ def extract(filename, *labels):
     {labels}
 
     """
+    tsutils._printiso(extract(filename,
+                              *labels))
+
+
+def extract(filename,
+            *labels):
+    """Get the time series data for a particular object and variable."""
     obj = SwmmExtract(filename)
     nlabels = []
     for label in labels:
@@ -750,7 +759,7 @@ def extract(filename, *labels):
     result = pd.concat(jtsd,
                        axis=1,
                        join_axes=[jtsd[0].index])
-    return tsutils.printiso(result)
+    return result
 
 
 @tsutils.doc(_LOCAL_DOCSTRINGS)

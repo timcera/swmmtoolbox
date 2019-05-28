@@ -751,11 +751,16 @@ def extract(filename,
             values.append(value)
         if itemtype == 'system':
             name = ''
-        jtsd.append(pd.DataFrame(
-            pd.Series(values, index=dates),
-            columns=['{0}_{1}_{2}'.format(itemtype,
-                                          name,
-                    obj.varcode[typenumber][variableindex])]))
+        jtsd.append(
+            pd.DataFrame(
+                pd.Series(
+                    values,
+                    index=dates),
+                columns=[
+                    '{0}_{1}_{2}'.format(
+                        itemtype,
+                        name,
+                        obj.varcode[typenumber][variableindex])]))
     result = pd.concat(jtsd,
                        axis=1,
                        join_axes=[jtsd[0].index])

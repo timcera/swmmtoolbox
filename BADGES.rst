@@ -11,7 +11,7 @@
     :target: https://pypi.python.org/pypi/swmmtoolbox
 
 .. image:: http://img.shields.io/badge/license-BSD-lightgrey.svg
-    :alt: swmmtoolbox license
+    :alt: BSD-3 clause license
     :target: https://pypi.python.org/pypi/swmmtoolbox/
 
 .. image:: http://img.shields.io/pypi/dd/swmmtoolbox.svg

@@ -6,6 +6,12 @@ python:
   - 3.7
   - 3.8
 
+cache:
+  pip: true
+  directories:
+    - $HOME/.ccache  # https://github.com/travis-ci/travis-ci/issues/5853
+    - $HOME/.cache/matplotlib
+
 # Setup anaconda
 before_install:
   - sudo apt-get -qq update

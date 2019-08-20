@@ -499,9 +499,9 @@ def about():
     tsutils.about(__name__)
 
 
-@mando.command(formatter_class=RSTHelpFormatter, doctype="numpy")
+@mando.command("catalog", formatter_class=RSTHelpFormatter, doctype="numpy")
 @tsutils.doc(_LOCAL_DOCSTRINGS)
-def catalog(filename, itemtype="", tablefmt="csv_nos", header="default", retval=False):
+def catalog_cli(filename, itemtype="", tablefmt="csv_nos", header="default"):
     """List the catalog of objects in output file.
 
     This catalog list is all of the labels that can be used in the extract
@@ -513,11 +513,14 @@ def catalog(filename, itemtype="", tablefmt="csv_nos", header="default", retval=
     {itemtype}
     {tablefmt}
     {header}
-    retval
-        [optional, default is False]
+    """
+    tsutils._printiso(catalog(filename, itemtype=itemtype,
+                              tablefmt=tablefmt, header=header,
+                              ))
 
-        Whether to just return a dictionary.  Only useful when using the Python
-        API."""
+
+def catalog(filename, itemtype="", tablefmt="csv_nos", header="default"):
+    """List the catalog of objects in output file."""
     obj = SwmmExtract(filename)
     if itemtype:
         typenumber = obj.type_check(itemtype)
@@ -540,14 +543,12 @@ def catalog(filename, itemtype="", tablefmt="csv_nos", header="default", retval=
                 continue
             for j in obj.vars[typenumber]:
                 collect.append([obj.itemlist[i], oname, obj.varcode[typenumber][j]])
-    if retval is True:
-        return collect
-    return tsutils.printiso(collect, tablefmt=tablefmt, headers=header)
+    return collect
 
 
-@mando.command(formatter_class=RSTHelpFormatter, doctype="numpy")
+@mando.command("listdetail", formatter_class=RSTHelpFormatter, doctype="numpy")
 @tsutils.doc(_LOCAL_DOCSTRINGS)
-def listdetail(filename, itemtype, name="", tablefmt="simple", header="default"):
+def listdetail_cli(filename, itemtype, name="", tablefmt="simple", header="default"):
     """List nodes and metadata in output file.
 
     Parameters
@@ -561,8 +562,13 @@ def listdetail(filename, itemtype, name="", tablefmt="simple", header="default")
         looked up using 'listvariables'.
     {tablefmt}
     {header}
-
     """
+    tsutils._printiso(listdetail(filename, itemtype, name=name,
+                                 tablefmt=tablefmt, header=header))
+
+
+def listdetail(filename, itemtype, name="", tablefmt="simple", header="default"):
+    """List nodes and metadata in output file."""
     obj = SwmmExtract(filename)
     typenumber = obj.type_check(itemtype)
     if name:
@@ -592,12 +598,12 @@ def listdetail(filename, itemtype, name="", tablefmt="simple", header="default")
             cnt = cheader.count(head)
             cheader.append("{0}.{1}".format(head, cnt))
     df.columns = cheader
-    return tsutils.printiso(df, tablefmt=tablefmt, headers=header)
+    return df
 
 
-@mando.command(formatter_class=RSTHelpFormatter, doctype="numpy")
+@mando.command("listvariables", formatter_class=RSTHelpFormatter, doctype="numpy")
 @tsutils.doc(_LOCAL_DOCSTRINGS)
-def listvariables(filename, tablefmt="csv_nos", header="default", retval=False):
+def listvariables_cli(filename, tablefmt="csv_nos", header="default"):
     """List variables available for each type.
 
     The type are "subcatchment", "node", "link", "pollutant", "system".
@@ -607,11 +613,16 @@ def listvariables(filename, tablefmt="csv_nos", header="default", retval=False):
     {filename}
     {tablefmt}
     {header}
-    retval
-        [optional, default is False]
+    """
 
-        Whether to just return a dictionary.  Only useful when using the Python
-        API."""
+
+    tsutils._printiso(listvariables(filename, tablefmt=tablefmt, header=header,
+                  ))
+
+
+def listvariables(filename, tablefmt="csv_nos", header="default",
+                  ):
+    """List variables available for each type."""
     obj = SwmmExtract(filename)
     if header == "default":
         header = ["TYPE", "DESCRIPTION", "VARINDEX"]
@@ -628,14 +639,12 @@ def listvariables(filename, tablefmt="csv_nos", header="default", retval=False):
                 collect.append([itemtype, obj.varcode[typenumber][i].decode(), i])
             except (TypeError, AttributeError):
                 collect.append([itemtype, str(obj.varcode[typenumber][i]), str(i)])
-    if retval is True:
-        return collect
-    return tsutils.printiso(collect, tablefmt=tablefmt, headers=header)
+    return collect
 
 
-@mando.command(formatter_class=RSTHelpFormatter, doctype="numpy")
+@mando.command("stdtoswmm5", formatter_class=RSTHelpFormatter, doctype="numpy")
 @tsutils.doc(_LOCAL_DOCSTRINGS)
-def stdtoswmm5(start_date=None, end_date=None, input_ts="-"):
+def stdtoswmm5_cli(start_date=None, end_date=None, input_ts="-"):
     """Take the toolbox standard format and return SWMM5 format.
 
     Toolbox standard::
@@ -657,8 +666,14 @@ def stdtoswmm5(start_date=None, end_date=None, input_ts="-"):
     {input_ts}
     {start_date}
     {end_date}
-
     """
+    tsutils._printiso(stdtoswmm5(start_date=start_date,
+                                 end_date=end_date,
+                                     input_ts=input_ts))
+
+
+def stdtoswmm5(start_date=None, end_date=None, input_ts="-"):
+    """Take the toolbox standard format and return SWMM5 format."""
     import csv
 
     sys.tracebacklimit = 1000
@@ -736,7 +751,7 @@ def extract(filename, *labels):
             words[2] = obj.varcode[typenumber][words[2]]
         except (ValueError, TypeError):
             pass
-        res = tupleSearch(words, catalog(filename, retval=True))
+        res = tupleSearch(words, catalog(filename))
         for index, lab in res:
             nlabels.append(lab)
 

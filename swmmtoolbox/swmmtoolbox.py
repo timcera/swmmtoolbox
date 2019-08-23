@@ -8,6 +8,7 @@ from builtins import object
 from builtins import range
 from builtins import str
 from builtins import zip
+import copy
 import datetime
 import os
 import struct
@@ -43,7 +44,6 @@ VARCODE = {
         5: "Groundwater_outflow",
         6: "Groundwater_elevation",
         7: "Soil_moisture",
-        8: "Pollutant_washoff",
     },
     1: {
         0: "Depth_above_invert",
@@ -221,7 +221,7 @@ class SwmmExtract(object):
             raise ValueError(
                 """
 *
-*   First magic number incorrect.
+*   Beginning magic number incorrect.
 *
 """
             )
@@ -229,7 +229,7 @@ class SwmmExtract(object):
             raise ValueError(
                 """
 *
-*   Second magic number incorrect.
+*   Ending magic number incorrect.
 *
 """
             )
@@ -261,10 +261,11 @@ class SwmmExtract(object):
             self.swmm_nlinks,
             self.swmm_npolluts,
         ) = struct.unpack("6i", self.fp.read(6 * self.RECORDSIZE))
+
         if version < 5100:
-            self.varcode = VARCODE_OLD
+            varcode = VARCODE_OLD
         else:
-            self.varcode = VARCODE
+            varcode = VARCODE
 
         self.itemlist = ["subcatchment", "node", "link", "pollutant", "system"]
 
@@ -301,6 +302,17 @@ class SwmmExtract(object):
                     collect_names.append(rname)
             self.names[key] = collect_names
 
+        # Update self.varcode to add pollutant names to subcatchment,
+        # nodes, and links.
+        self.varcode = copy.deepcopy(varcode)
+        for itemtype in ["subcatchment", "node", "link"]:
+            typenumber = self.type_check(itemtype)
+            start = len(varcode[typenumber])
+            end = start + len(self.names[3])
+            nlabels = list(range(start, end))
+            ndict = dict(list(zip(nlabels, self.names[3])))
+            self.varcode[typenumber].update(ndict)
+
         # Read pollutant concentration codes
         # = Number of pollutants * 4 byte integers
         self.pollutant_codes = struct.unpack(
@@ -309,7 +321,14 @@ class SwmmExtract(object):
         )
 
         self.propcode = {}
+
+        # self.prop[0] contain property codes and values for
+        # subcatchments
+        # self.prop[1] contain property codes and values for nodes
+        # self.prop[2] contain property codes and values for links
         self.prop = {0: [], 1: [], 2: []}
+
+        # subcatchments
         nsubprop = struct.unpack("i", self.fp.read(self.RECORDSIZE))[0]
         self.propcode[0] = struct.unpack(
             "{0}i".format(nsubprop), self.fp.read(nsubprop * self.RECORDSIZE)
@@ -320,23 +339,25 @@ class SwmmExtract(object):
             )
             self.prop[0].append(list(zip(self.propcode[0], rprops)))
 
+        # nodes
         nnodeprop = struct.unpack("i", self.fp.read(self.RECORDSIZE))[0]
         self.propcode[1] = struct.unpack(
             "{0}i".format(nnodeprop), self.fp.read(nnodeprop * self.RECORDSIZE)
         )
         for i in range(self.swmm_nnodes):
             rprops = struct.unpack(
-                "i{0}f".format(nnodeprop - 1), self.fp.read(nnodeprop * self.RECORDSIZE)
+                "{0}f".format(nnodeprop), self.fp.read(nnodeprop * self.RECORDSIZE)
             )
             self.prop[1].append(list(zip(self.propcode[1], rprops)))
 
+        # links
         nlinkprop = struct.unpack("i", self.fp.read(self.RECORDSIZE))[0]
         self.propcode[2] = struct.unpack(
             "{0}i".format(nlinkprop), self.fp.read(nlinkprop * self.RECORDSIZE)
         )
         for i in range(self.swmm_nlinks):
             rprops = struct.unpack(
-                "i{0}f".format(nlinkprop - 1), self.fp.read(nlinkprop * self.RECORDSIZE)
+                "{0}f".format(nlinkprop), self.fp.read(nlinkprop * self.RECORDSIZE)
             )
             self.prop[2].append(list(zip(self.propcode[2], rprops)))
 
@@ -390,13 +411,6 @@ class SwmmExtract(object):
             + self.nsystemvars
         )
 
-    def update_var_code(self, typenumber):
-        start = len(self.varcode[typenumber])
-        end = start + len(self.names[3])
-        nlabels = list(range(start, end))
-        ndict = dict(list(zip(nlabels, self.names[3])))
-        self.varcode[typenumber].update(ndict)
-
     def type_check(self, itemtype):
         if itemtype in [0, 1, 2, 3, 4]:
             return itemtype
@@ -448,7 +462,9 @@ class SwmmExtract(object):
 
         date_offset = self.startpos + period * self.bytesperperiod
 
+        # Rewind
         self.fp.seek(date_offset, 0)
+
         date = struct.unpack("d", self.fp.read(2 * self.RECORDSIZE))[0]
 
         offset = date_offset + 2 * self.RECORDSIZE  # skip the date
@@ -472,7 +488,6 @@ class SwmmExtract(object):
                 + self.swmm_nnodes * self.nnodevars
                 + self.swmm_nlinks * self.nlinkvars
             )
-
         offset = offset + self.RECORDSIZE * variableindex
 
         self.fp.seek(offset, 0)
@@ -514,12 +529,12 @@ def catalog_cli(filename, itemtype="", tablefmt="csv_nos", header="default"):
     {tablefmt}
     {header}
     """
-    tsutils._printiso(catalog(filename, itemtype=itemtype,
-                              tablefmt=tablefmt, header=header,
-                              ))
+    tsutils._printiso(
+        catalog(filename, itemtype=itemtype, header=header), tablefmt=tablefmt
+    )
 
 
-def catalog(filename, itemtype="", tablefmt="csv_nos", header="default"):
+def catalog(filename, itemtype="", header="default"):
     """List the catalog of objects in output file."""
     obj = SwmmExtract(filename)
     if itemtype:
@@ -530,9 +545,6 @@ def catalog(filename, itemtype="", tablefmt="csv_nos", header="default"):
     if header == "default":
         header = ["TYPE", "NAME", "VARIABLE"]
     collect = []
-    for itemtype in ["subcatchment", "node", "link", "system"]:
-        typenumber = obj.type_check(itemtype)
-        obj.update_var_code(typenumber)
     for i in plist:
         typenumber = obj.type_check(obj.itemlist[i])
         for oname in obj.names[i]:
@@ -563,11 +575,12 @@ def listdetail_cli(filename, itemtype, name="", tablefmt="simple", header="defau
     {tablefmt}
     {header}
     """
-    tsutils._printiso(listdetail(filename, itemtype, name=name,
-                                 tablefmt=tablefmt, header=header))
+    tsutils._printiso(
+        listdetail(filename, itemtype, name=name, header=header), tablefmt=tablefmt
+    )
 
 
-def listdetail(filename, itemtype, name="", tablefmt="simple", header="default"):
+def listdetail(filename, itemtype, name="", header="default"):
     """List nodes and metadata in output file."""
     obj = SwmmExtract(filename)
     typenumber = obj.type_check(itemtype)
@@ -585,7 +598,10 @@ def listdetail(filename, itemtype, name="", tablefmt="simple", header="default")
         printvar = [oname]
         for j in obj.prop[typenumber][i]:
             if j[0] == 0:
-                printvar.append(TYPECODE[typenumber][j[1]])
+                try:
+                    printvar.append(TYPECODE[typenumber][j[1]])
+                except KeyError:
+                    printvar.append(TYPECODE[typenumber][0])
             else:
                 printvar.append(j[1])
         collect.append(printvar)
@@ -615,13 +631,10 @@ def listvariables_cli(filename, tablefmt="csv_nos", header="default"):
     {header}
     """
 
-
-    tsutils._printiso(listvariables(filename, tablefmt=tablefmt, header=header,
-                  ))
+    tsutils._printiso(listvariables(filename, header=header), tablefmt=tablefmt)
 
 
-def listvariables(filename, tablefmt="csv_nos", header="default",
-                  ):
+def listvariables(filename, header="default"):
     """List variables available for each type."""
     obj = SwmmExtract(filename)
     if header == "default":
@@ -631,8 +644,6 @@ def listvariables(filename, tablefmt="csv_nos", header="default",
     collect = []
     for itemtype in ["subcatchment", "node", "link", "system"]:
         typenumber = obj.type_check(itemtype)
-
-        obj.update_var_code(typenumber)
 
         for i in obj.vars[typenumber]:
             try:
@@ -667,9 +678,9 @@ def stdtoswmm5_cli(start_date=None, end_date=None, input_ts="-"):
     {start_date}
     {end_date}
     """
-    tsutils._printiso(stdtoswmm5(start_date=start_date,
-                                 end_date=end_date,
-                                     input_ts=input_ts))
+    tsutils._printiso(
+        stdtoswmm5(start_date=start_date, end_date=end_date, input_ts=input_ts)
+    )
 
 
 def stdtoswmm5(start_date=None, end_date=None, input_ts="-"):
@@ -729,19 +740,7 @@ def extract(filename, *labels):
     obj = SwmmExtract(filename)
     nlabels = []
     for label in labels:
-        words = label.split(",")
-        if len(words) != 3:
-            raise ValueError(
-                """
-*
-*   The label '{0}' has the wrong number of entries.  Should have 3.
-*
-""".format(
-                    label
-                )
-            )
-
-        words = [None if i is "" else i for i in words]
+        words = tsutils.make_list(label, n=3)
         if None not in words:
             nlabels.append(words)
             continue
@@ -757,9 +756,6 @@ def extract(filename, *labels):
 
     jtsd = []
 
-    for itemtype in ["subcatchment", "node", "link", "system"]:
-        typenumber = obj.type_check(itemtype)
-        obj.update_var_code(typenumber)
     for itemtype, name, variablename in nlabels:
         typenumber = obj.type_check(itemtype)
 
@@ -772,6 +768,7 @@ def extract(filename, *labels):
             variableindex = inv_varcode_map[int(variablename)]
         except ValueError:
             variableindex = inv_varcode_map[variablename]
+
         begindate = datetime.datetime(1899, 12, 30)
         dates = []
         values = []
@@ -818,12 +815,10 @@ def extract_arr(filename, *labels):
     """
     obj = SwmmExtract(filename)
     for label in labels:
-        itemtype, name, variableindex = label.split(",")
+        itemtype, name, variableindex = tsutils.make_list(label, n=3)
         typenumber = obj.type_check(itemtype)
         if itemtype != "system":
             name = obj.name_check(itemtype, name)[0]
-
-        obj.update_var_code(typenumber)
 
         data = pd.np.zeros(len(list(range(obj.swmm_nperiods))))
 

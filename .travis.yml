@@ -29,7 +29,7 @@ install:
 
 script:
   - source activate $TRAVIS_PYTHON_VERSION
-  - nosetests --with-doctest --with-coverage --cover-tests --cover-package=swmmtoolbox --cover-branches --cover-erase
+  - pytest --cov swmmtoolbox --doctest-modules --ignore=docsrc --mpl
 
 after_success:
   - coveralls

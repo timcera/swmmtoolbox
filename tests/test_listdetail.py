@@ -50,7 +50,9 @@ class TestListdetail(TestCase):
         )
 
     def test_listdetail_node(self):
-        out = swmmtoolbox.listdetail(os.path.join("tests", "frutal.out"), "node")
+        out = swmmtoolbox.listdetail(os.path.join("tests",
+                                                  "frutal.out"),
+                                     "node").round(1)
         self.maxDiff = None
         assert_frame_equal(out, self.listdetail_node)
 

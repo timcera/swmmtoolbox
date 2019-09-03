@@ -41,7 +41,7 @@ F3, Junction, 496.00, 1.50
 82, Junction, 560.00, 1.60
 83, Junction, 559.00, 1.60
 84, Junction, 526.00, 1.60
-85, Junction, 510.00, 1.55
+85, Junction, 510.00, 1.50
 86, Junction, 498.00, 2.20
 87, Junction, 490.00, 2.20
 88, Junction, 487.00, 2.20
@@ -67,8 +67,8 @@ F5, Junction, 481.00, 3.00
 108, Junction, 470.00, 3.00
 109, Junction, 469.00, 3.00
 110, Junction, 500.00, 1.00
-111, Junction, 467.00, 2.55
-F6, Junction, 466.90, 2.55
+111, Junction, 467.00, 2.50
+F6, Junction, 466.90, 2.50
 113, Junction, 466.50, 2.50
 114, Junction, 500.00, 1.00
 115, Junction, 490.00, 1.50
@@ -222,4 +222,4 @@ B8, Junction, 427.00, 2.00
 263, Junction, 423.00, 4.00
 264, Junction, 421.00, 4.00
 B9, Junction, 419.00, 4.00
-73, Outfall, 0.00, 4.00
+73, Junction, 0.00, 4.00

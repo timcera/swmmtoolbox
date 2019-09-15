@@ -432,7 +432,7 @@ class SwmmExtract(object):
     def name_check(self, itemtype, itemname):
         self.itemtype = self.type_check(itemtype)
         try:
-            itemindex = self.names[self.itemtype].index(itemname)
+            itemindex = self.names[self.itemtype].index(str(itemname))
         except (ValueError, KeyError):
             raise ValueError(
                 """

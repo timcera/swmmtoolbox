@@ -210,9 +210,14 @@ class SwmmExtract(object):
 
         self.fp.seek(-6 * self.RECORDSIZE, 2)
 
-        self.Namesstartpos, self.offset0, self.startpos, self.swmm_nperiods, errcode, magic2 = struct.unpack(
-            "6i", self.fp.read(6 * self.RECORDSIZE)
-        )
+        (
+            self.Namesstartpos,
+            self.offset0,
+            self.startpos,
+            self.swmm_nperiods,
+            errcode,
+            magic2,
+        ) = struct.unpack("6i", self.fp.read(6 * self.RECORDSIZE))
 
         self.fp.seek(0, 0)
         magic1 = struct.unpack("i", self.fp.read(self.RECORDSIZE))[0]

@@ -21,7 +21,7 @@ The swmmtoolbox is a Python script to read the Storm Water Management Model
 
 Requirements
 ============
-Python - of course
+Python - of course, version 3.6+.
 
 The 'mando' library which should have been installed as a requirement.
 

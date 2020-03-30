@@ -9,7 +9,7 @@ This is the home page for the 'swmmtoolbox'.
 
 swmmtoolbox dumps text out of binary files created by the Storm Water Managment Model (SWMM) version 5+.
 
-swmmtoolbox should work with Python 2.7+ and 3.3+.
+swmmtoolbox should work with Python 3.6+.
 
 Table of Contents
 -----------------

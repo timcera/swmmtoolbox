@@ -13,6 +13,7 @@ import datetime
 import os
 import struct
 import sys
+import warnings
 
 import mando
 from mando.rst_text_formatter import RSTHelpFormatter
@@ -808,9 +809,15 @@ def extract(filename, *labels):
 
 @tsutils.doc(_LOCAL_DOCSTRINGS)
 def extract_arr(filename, *labels):
-    """Extract and return the raw numpy array.
+    """DEPRECATED: Extract and return the raw numpy array.
 
-    Available only within Python API
+    DEPRECATED: Will be removed in future version. Instead use the following.
+
+    >>> from swmmtoolbox import swmmtoolbox
+    >>> na = swmmtoolbox.extract("filename.out", "link,41a,Flow_rate")[0].to_array()
+
+    The `extract_arr` function will return the numpy array for the last entry
+    in "*labels".
 
     Parameters
     ----------
@@ -818,6 +825,17 @@ def extract_arr(filename, *labels):
     {labels}
 
     """
+    warnings.warn(
+        tsutils.error_wrapper(
+            """
+DEPRECATED: Will be removed in future version. Instead use the following.
+
+>>> from swmmtoolbox import swmmtoolbox
+
+>>> na = swmmtoolbox.extract("filename.out", "link,41a,Flow_rate")[0].to_array()
+"""
+        )
+    )
     obj = SwmmExtract(filename)
     for label in labels:
         itemtype, name, variableindex = tsutils.make_list(label, n=3)

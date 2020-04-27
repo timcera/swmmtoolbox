@@ -18,6 +18,7 @@ import warnings
 import mando
 from mando.rst_text_formatter import RSTHelpFormatter
 
+import numpy as np
 import pandas as pd
 
 from tstoolbox import tsutils
@@ -843,7 +844,7 @@ DEPRECATED: Will be removed in future version. Instead use the following.
         if itemtype != "system":
             name = obj.name_check(itemtype, name)[0]
 
-        data = pd.np.zeros(len(list(range(obj.swmm_nperiods))))
+        data = np.zeros(len(list(range(obj.swmm_nperiods))))
 
         for time in range(obj.swmm_nperiods):
             _, value = obj.get_swmm_results(typenumber, name, int(variableindex), time)

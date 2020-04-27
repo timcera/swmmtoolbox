@@ -31,7 +31,7 @@ install:
 
 script:
   - source activate $TRAVIS_PYTHON_VERSION
-  - pytest --cov swmmtoolbox --doctest-modules --ignore=docsrc
+  - pytest --cov swmmtoolbox --ignore=docsrc
 
 after_success:
   - coveralls

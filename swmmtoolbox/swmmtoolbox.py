@@ -804,7 +804,21 @@ def extract(filename, *labels):
                 ],
             )
         )
-    result = pd.concat(jtsd, axis=1, join_axes=[jtsd[0].index])
+        result = pd.concat(jtsd, join="outer", axis=1).reindex(jtsd[0].index)
+
+    # previous
+    # result = pd.concat(jtsd, axis=1, join_axes=[jtsd[0].index])
+
+    # https://github.com/pandas-dev/pandas/issues/21951
+    # ## only works with list-like join_axes
+    # pd.concat([one, two], join='outer', axis=1, join_axes=[two.index])
+    # #      a    b   b   c
+    # # 1  2.0  3.0  10  11
+    # # 2  NaN  NaN  12  13
+
+    # ## cleaner with reindex?
+    # pd.concat([one, two], join='outer', axis=1).reindex(two.index)
+    # #      a    b     b     c
     return result
 
 

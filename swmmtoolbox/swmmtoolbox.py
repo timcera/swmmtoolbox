@@ -804,7 +804,7 @@ def extract(filename, *labels):
                 ],
             )
         )
-    result = pd.concat(jtsd, axis=1, join_axes=[jtsd[0].index])
+    result = pd.concat(jtsd, axis=1).reindex(jtsd[0].index)
     return result
 
 

@@ -26,7 +26,7 @@ install_requires = [
     # List your project dependencies here.
     # For more details, see:
     # http://packages.python.org/distribute/setuptools.html#declaring-dependencies
-    "tstoolbox >= 1.12.12.9",
+    "tstoolbox >= 102, < 103",
     "sphinx >= 1.3",
     "future",
 ]
@@ -47,9 +47,9 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Natural Language :: English",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Topic :: Scientific/Engineering :: Information Analysis",
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development :: Libraries :: Python Modules",
@@ -64,5 +64,5 @@ setup(
     zip_safe=False,
     install_requires=install_requires,
     entry_points={"console_scripts": ["swmmtoolbox=swmmtoolbox.swmmtoolbox:main"]},
-    python_requires=">=3.6",
+    python_requires=">=3.7.1",
 )

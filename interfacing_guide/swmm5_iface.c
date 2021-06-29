@@ -155,7 +155,7 @@ int OpenSwmmOutFile(char* outFile)
     fclose(Fout);
     return 1;
   }
-    
+
   // --- read parameters from end of file
   fseek(Fout, -5*RECORDSIZE, SEEK_END);
   fread(&offset0, RECORDSIZE, 1, Fout);
@@ -273,4 +273,3 @@ void CloseSwmmOutFile(void)
     Fout = NULL;
   }
 }
-          

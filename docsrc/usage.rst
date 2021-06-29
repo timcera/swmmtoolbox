@@ -14,7 +14,7 @@ Sub-command Detail
 extract
 ~~~~~~~
 .. program-output:: swmmtoolbox extract --help
- 
+
 list
 ~~~~
 .. program-output:: swmmtoolbox catalog --help

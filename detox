@@ -23,7 +23,7 @@ pytest_opts='--doctest-modules --ignore docsrc --mpl'
 
 for env in ${envs[@]}; do
     echo "${env}"
-    
+
     activate="${env}"/bin/activate
     if [ -f "${activate}" ]; then
         source "${env}"/bin/activate

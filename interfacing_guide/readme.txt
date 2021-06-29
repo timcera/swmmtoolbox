@@ -5,7 +5,7 @@ Contents
 Interfacing.chm  The Interfacing Guide in the form of a Windows HTML Help
                  file (double click to launch it).
 
-swmm5.h          function declarations for interfacing the SWMM 5 
+swmm5.h          function declarations for interfacing the SWMM 5
 swmm5.lib        engine DLL with C/C++ code.
 
 swmm5.bas        function declarations for interfacing with Visual Basic.

@@ -24,4 +24,3 @@ function   swmm_end;    external 'SWMM5.DLL';
 function   swmm_getMassBalErr; external 'SWMM5.DLL';
 function   swmm_close;  external 'SWMM5.DLL';
 end.
-

@@ -15,7 +15,7 @@ cache:
 
 # Setup anaconda
 before_install:
-  - sudo apt-get -qq update 
+  - sudo apt-get -qq update
   - sudo apt-get install libblas-dev liblapack-dev
 
 # Install packages

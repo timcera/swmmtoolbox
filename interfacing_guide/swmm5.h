@@ -37,8 +37,8 @@
 // --- use "C" linkage for C++ programs
 
 #ifdef __cplusplus
-extern "C" { 
-#endif 
+extern "C" {
+#endif
 
 int  DLLEXPORT   swmm_run(char* f1, char* f2, char* f3);
 int  DLLEXPORT   swmm_open(char* f1, char* f2, char* f3);
@@ -51,8 +51,8 @@ int  DLLEXPORT   swmm_getMassBalErr(float* runoffErr, float* flowErr,
 int  DLLEXPORT   swmm_close(void);
 int  DLLEXPORT   swmm_getVersion(void);
 
-#ifdef __cplusplus 
-}   // matches the linkage specification from above */ 
+#ifdef __cplusplus
+}   // matches the linkage specification from above */
 #endif
 
 #endif

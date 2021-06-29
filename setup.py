@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import os
@@ -26,7 +25,7 @@ install_requires = [
     # List your project dependencies here.
     # For more details, see:
     # http://packages.python.org/distribute/setuptools.html#declaring-dependencies
-    "tstoolbox >= 102, < 103",
+    "tstoolbox >= 103",
     "sphinx >= 1.3",
     "future",
 ]

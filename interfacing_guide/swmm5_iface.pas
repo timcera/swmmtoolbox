@@ -177,7 +177,7 @@ Begin
   }
 
   // --- otherwise read additional parameters from start of file
-  BlockRead(Fout, version, RECORDSIZE); 
+  BlockRead(Fout, version, RECORDSIZE);
   BlockRead(Fout, SWMM_FlowUnits, RECORDSIZE);
   BlockRead(Fout, SWMM_Nsubcatch, RECORDSIZE);
   BlockRead(Fout, SWMM_Nnodes, RECORDSIZE);

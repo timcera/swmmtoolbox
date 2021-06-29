@@ -1,11 +1,11 @@
 .. include:: ../BADGES.rst
 
-.. _swmmtoolbox_documentation:  
+.. _swmmtoolbox_documentation:
 
 swmmtoolbox
 ===========
 
-This is the home page for the 'swmmtoolbox'.  
+This is the home page for the 'swmmtoolbox'.
 
 swmmtoolbox dumps text out of binary files created by the Storm Water Managment Model (SWMM) version 5+.
 
@@ -26,4 +26,3 @@ Table of Contents
 Other Projects
 --------------
 http://timcera.bitbucket.io
-

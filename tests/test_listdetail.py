@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """
@@ -7,15 +6,12 @@ test_listdetail
 
 Tests for `swmmtoolbox` module.
 """
-import shlex
-import subprocess
 import os
-import six
-import csv
-
-from unittest import TestCase
-from pandas.util.testing import assert_frame_equal
 import sys
+from unittest import TestCase
+
+import six
+from pandas.util.testing import assert_frame_equal
 
 try:
     from cStringIO import StringIO

@@ -141,7 +141,7 @@ If err = 0 Then
       ' call a progress reporting function here,
       ' using elapsedTime as an argument
       '//////////////////////////////////////////
-    
+
     Loop While elapsedTime > 0# And err = 0
   End If
 

@@ -3,7 +3,7 @@
 import os
 import sys
 
-from setuptools import setup
+from setuptools import find_packages, setup
 
 # temporarily redirect config directory to prevent matplotlib importing
 # testing that for writeable directory which results in sandbox error in
@@ -15,6 +15,7 @@ pkg_name = "swmmtoolbox"
 version = open("VERSION").readline().strip()
 
 if sys.argv[-1] == "publish":
+    os.system("cleanpy .")
     os.system("python setup.py sdist")
     os.system("twine upload dist/{pkg_name}-{version}.tar.gz".format(**locals()))
     sys.exit()
@@ -29,6 +30,20 @@ install_requires = [
     "sphinx >= 1.3",
     "future",
 ]
+
+extras_require = {
+    "dev": [
+        "black",
+        "cleanpy",
+        "twine",
+        "pytest",
+        "coverage",
+        "flake8",
+        "pytest-cov",
+        "pytest-mpl",
+        "pre-commit",
+    ]
+}
 
 setup(
     name=pkg_name,
@@ -56,12 +71,16 @@ setup(
     keywords="stormwater model water hydrology hydraulics",
     author="Tim Cera, P.E.",
     author_email="tim@cerazone.net",
-    url="http://timcera.bitbucket.io/swmmtoolbox/docsrc/index.html",
-    packages=["swmmtoolbox"],
-    package_dir={"": "."},
-    include_package_data=True,
+    url="http://timcera.bitbucket.io/{pkg_name}/docsrc/index.html".format(**locals()),
+    license="BSD",
+    packages=find_packages("src"),
+    package_dir={"": "src"},
     zip_safe=False,
     install_requires=install_requires,
-    entry_points={"console_scripts": ["swmmtoolbox=swmmtoolbox.swmmtoolbox:main"]},
+    extras_require=extras_require,
+    entry_points={
+        "console_scripts": ["{pkg_name}={pkg_name}.{pkg_name}:main".format(**locals())]
+    },
+    test_suite="tests",
     python_requires=">=3.7.1",
 )

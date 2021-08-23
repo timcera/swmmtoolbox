@@ -19,7 +19,7 @@ pkgs="\
 
 envs=`find ~/pythons -maxdepth 1 -mindepth 1 -type d`
 
-pytest_opts='--doctest-modules --ignore docsrc --mpl'
+pytest_opts='--doctest-modules --ignore docs --mpl'
 
 for env in ${envs[@]}; do
     echo "${env}"

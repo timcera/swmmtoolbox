@@ -2,7 +2,7 @@
 
 ### Refactor
 
-- moved docsrc to the standard docs
+- moved docs to the standard docs
 
 ### Fix
 

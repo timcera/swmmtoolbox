@@ -528,12 +528,14 @@ def catalog_cli(filename, itemtype="", tablefmt="csv_nos", header="default"):
     {tablefmt}
     {header}
     """
+    if header == "default":
+        header = ["TYPE", "NAME", "VARIABLE"]
     tsutils._printiso(
-        catalog(filename, itemtype=itemtype, header=header), tablefmt=tablefmt
+        catalog(filename, itemtype=itemtype), headers=header, tablefmt=tablefmt
     )
 
 
-def catalog(filename, itemtype="", header="default"):
+def catalog(filename, itemtype=""):
     """List the catalog of objects in output file."""
     obj = SwmmExtract(filename)
     if itemtype:
@@ -541,8 +543,6 @@ def catalog(filename, itemtype="", header="default"):
         plist = [typenumber]
     else:
         plist = list(range(len(obj.itemlist)))
-    if header == "default":
-        header = ["TYPE", "NAME", "VARIABLE"]
     collect = []
     for i in plist:
         typenumber = obj.type_check(obj.itemlist[i])

@@ -738,6 +738,10 @@ def extract(filename, *labels):
     """Get the time series data for a particular object and variable."""
     obj = SwmmExtract(filename)
     nlabels = []
+
+    if isinstance(labels, (list, tuple)) and len(labels) == 1:
+        labels = labels[0]
+
     for label in labels:
         words = tsutils.make_list(label, n=3)
         if None not in words:

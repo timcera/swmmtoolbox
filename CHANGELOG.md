@@ -1,3 +1,9 @@
+## v3.3.4 (2021-10-14)
+
+### Fix
+
+- corrected processing of multiple labels
+
 ## v3.3.3 (2021-08-01)
 
 ### Refactor

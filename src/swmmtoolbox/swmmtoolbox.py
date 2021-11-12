@@ -739,8 +739,7 @@ def extract(filename, *labels):
     obj = SwmmExtract(filename)
     nlabels = []
 
-    if isinstance(labels, (list, tuple)) and len(labels) == 1:
-        labels = labels[0]
+    labels = tsutils.make_list(labels, sep=" ")
 
     for label in labels:
         words = tsutils.make_list(label, n=3)

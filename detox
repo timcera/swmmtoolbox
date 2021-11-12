@@ -21,7 +21,7 @@ envs=`find ~/pythons -maxdepth 1 -mindepth 1 -type d`
 
 pytest_opts='--doctest-modules --ignore docs --mpl'
 
-for env in ${envs[@]}; do
+for env in ${envs}; do
     echo "${env}"
 
     activate="${env}"/bin/activate
@@ -33,7 +33,7 @@ for env in ${envs[@]}; do
         pip uninstall -y ${program}
         rm -rf build
         pip install -e ../${program}
-        pytest ${pytest_opts}
+        pytest ${pytest_opts} tests/*.py
         deactivate
     else
         echo "Didn't find ${activate}."

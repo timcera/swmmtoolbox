@@ -1,3 +1,9 @@
+## v3.3.5 (2021-11-12)
+
+### Fix
+
+- **extract**: fixed processing of label strings
+
 ## v3.3.4 (2021-10-14)
 
 ### Fix

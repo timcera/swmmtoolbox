@@ -523,10 +523,10 @@ def catalog_cli(filename, itemtype="", tablefmt="csv_nos", header="default"):
 
     Parameters
     ----------
-    {filename}
-    {itemtype}
-    {tablefmt}
-    {header}
+    ${filename}
+    ${itemtype}
+    ${tablefmt}
+    ${header}
     """
     if header == "default":
         header = ["TYPE", "NAME", "VARIABLE"]
@@ -564,15 +564,15 @@ def listdetail_cli(filename, itemtype, name="", tablefmt="simple", header="defau
 
     Parameters
     ----------
-    {filename}
-    {itemtype}
+    ${filename}
+    ${itemtype}
     name : str
         [optional, default is '']
 
         Specific name to print only that entry.  This can be
         looked up using 'listvariables'.
-    {tablefmt}
-    {header}
+    ${tablefmt}
+    ${header}
     """
     tsutils._printiso(
         listdetail(filename, itemtype, name=name, header=header), tablefmt=tablefmt
@@ -625,9 +625,9 @@ def listvariables_cli(filename, tablefmt="csv_nos", header="default"):
 
     Parameters
     ----------
-    {filename}
-    {tablefmt}
-    {header}
+    ${filename}
+    ${tablefmt}
+    ${header}
     """
 
     tsutils._printiso(listvariables(filename, header=header), tablefmt=tablefmt)
@@ -673,9 +673,9 @@ def stdtoswmm5_cli(start_date=None, end_date=None, input_ts="-"):
 
     Parameters
     ----------
-    {input_ts}
-    {start_date}
-    {end_date}
+    ${input_ts}
+    ${start_date}
+    ${end_date}
     """
     tsutils._printiso(
         stdtoswmm5(start_date=start_date, end_date=end_date, input_ts=input_ts)
@@ -727,8 +727,8 @@ def extract_cli(filename, *labels):
 
     Parameters
     ----------
-    {filename}
-    {labels}
+    ${filename}
+    ${labels}
 
     """
     tsutils._printiso(extract(filename, *labels))
@@ -817,8 +817,8 @@ def extract_arr(filename, *labels):
 
     Parameters
     ----------
-    {filename}
-    {labels}
+    ${filename}
+    ${labels}
 
     """
     warnings.warn(

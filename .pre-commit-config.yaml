@@ -3,20 +3,26 @@
 ---
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
+    rev: v4.2.0
     hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
       - id: check-added-large-files
       - id: check-case-conflict
       - id: check-docstring-first
       - id: check-executables-have-shebangs
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-merge-conflict
       - id: check-shebang-scripts-are-executable
+      - id: check-toml
+      - id: check-xml
+      - id: check-yaml
+      - id: end-of-file-fixer
       - id: fix-encoding-pragma
+      - id: mixed-line-ending
+      - id: trailing-whitespace
 
   - repo: https://github.com/psf/black
-    rev: 22.1.0  # Replace by any tag/version: https://github.com/psf/black/tags
+    rev: 22.3.0  # Replace by any tag/version: https://github.com/psf/black/tags
     hooks:
       - id: black
         language_version: python  # Should be a command that runs python3.6+
@@ -26,17 +32,53 @@ repos:
     hooks:
       - id: isort
         name: isort (python)
-        args: ["--profile", "black", "--filter-files"]
+        args: ["--profile", "black", "--filter-files", "--line-length", "88", "--multi-line", "3"]
       - id: isort
         name: isort (cython)
         types: [cython]
-        args: ["--profile", "black", "--filter-files"]
+        args: ["--profile", "black", "--filter-files", "--line-length", "88", "--multi-line", "3"]
       - id: isort
         name: isort (pyi)
         types: [pyi]
-        args: ["--profile", "black", "--filter-files"]
+        args: ["--profile", "black", "--filter-files", "--line-length", "88", "--multi-line", "3"]
 
   - repo: https://github.com/dfm/black_nbconvert
     rev: v0.4.0
     hooks:
       - id: black_nbconvert
+
+  - repo: https://github.com/asottile/blacken-docs
+    rev: v1.12.1
+    hooks:
+      - id: blacken-docs
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.32.1
+    hooks:
+      - id: pyupgrade
+
+# Removed since incorrect at times.
+#
+#  - repo: https://github.com/Carreau/velin
+#    rev: 0.0.11
+#    hooks:
+#      - id: velin
+#        name: Velin
+#        description: This hook attempt to reformat docstrings using numpydoc format.
+#        entry: velin
+#        language: python
+#        language_version: python3
+#        types: [text]
+#        types_or: [python]
+#        args: ["--write","--no-fixers"]
+
+  - repo: https://github.com/regebro/pyroma
+    rev: "4.0"
+    hooks:
+      - id: pyroma
+
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v2.27.1
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]

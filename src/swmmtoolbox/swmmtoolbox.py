@@ -234,13 +234,11 @@ class SwmmExtract(object):
             )
         if errcode != 0:
             raise ValueError(
-                """
+                f"""
 *
-*   Error code "{0}" in output file indicates a problem with the run.
+*   Error code "{errcode}" in output file indicates a problem with the run.
 *
-""".format(
-                    errcode
-                )
+"""
             )
         if self.swmm_nperiods == 0:
             raise ValueError(
@@ -281,9 +279,7 @@ class SwmmExtract(object):
             for _ in range(j):
                 stringsize = struct.unpack("i", self.fp.read(self.RECORDSIZE))[0]
                 self.names[i].append(
-                    struct.unpack("{0}s".format(stringsize), self.fp.read(stringsize))[
-                        0
-                    ]
+                    struct.unpack(f"{stringsize}s", self.fp.read(stringsize))[0]
                 )
 
         # Stupid Python 3
@@ -315,7 +311,7 @@ class SwmmExtract(object):
         # Read pollutant concentration codes
         # = Number of pollutants * 4 byte integers
         self.pollutant_codes = struct.unpack(
-            "{0}i".format(self.swmm_npolluts),
+            f"{self.swmm_npolluts}i",
             self.fp.read(self.swmm_npolluts * self.RECORDSIZE),
         )
 
@@ -330,52 +326,52 @@ class SwmmExtract(object):
         # subcatchments
         nsubprop = struct.unpack("i", self.fp.read(self.RECORDSIZE))[0]
         self.propcode[0] = struct.unpack(
-            "{0}i".format(nsubprop), self.fp.read(nsubprop * self.RECORDSIZE)
+            f"{nsubprop}i", self.fp.read(nsubprop * self.RECORDSIZE)
         )
         for i in range(self.swmm_nsubcatch):
             rprops = struct.unpack(
-                "{0}f".format(nsubprop), self.fp.read(nsubprop * self.RECORDSIZE)
+                f"{nsubprop}f", self.fp.read(nsubprop * self.RECORDSIZE)
             )
             self.prop[0].append(list(zip(self.propcode[0], rprops)))
 
         # nodes
         nnodeprop = struct.unpack("i", self.fp.read(self.RECORDSIZE))[0]
         self.propcode[1] = struct.unpack(
-            "{0}i".format(nnodeprop), self.fp.read(nnodeprop * self.RECORDSIZE)
+            f"{nnodeprop}i", self.fp.read(nnodeprop * self.RECORDSIZE)
         )
         for i in range(self.swmm_nnodes):
             rprops = struct.unpack(
-                "{0}f".format(nnodeprop), self.fp.read(nnodeprop * self.RECORDSIZE)
+                f"{nnodeprop}f", self.fp.read(nnodeprop * self.RECORDSIZE)
             )
             self.prop[1].append(list(zip(self.propcode[1], rprops)))
 
         # links
         nlinkprop = struct.unpack("i", self.fp.read(self.RECORDSIZE))[0]
         self.propcode[2] = struct.unpack(
-            "{0}i".format(nlinkprop), self.fp.read(nlinkprop * self.RECORDSIZE)
+            f"{nlinkprop}i", self.fp.read(nlinkprop * self.RECORDSIZE)
         )
         for i in range(self.swmm_nlinks):
             rprops = struct.unpack(
-                "{0}f".format(nlinkprop), self.fp.read(nlinkprop * self.RECORDSIZE)
+                f"{nlinkprop}f", self.fp.read(nlinkprop * self.RECORDSIZE)
             )
             self.prop[2].append(list(zip(self.propcode[2], rprops)))
 
         self.vars = {}
         self.swmm_nsubcatchvars = struct.unpack("i", self.fp.read(self.RECORDSIZE))[0]
         self.vars[0] = struct.unpack(
-            "{0}i".format(self.swmm_nsubcatchvars),
+            f"{self.swmm_nsubcatchvars}i",
             self.fp.read(self.swmm_nsubcatchvars * self.RECORDSIZE),
         )
 
         self.nnodevars = struct.unpack("i", self.fp.read(self.RECORDSIZE))[0]
         self.vars[1] = struct.unpack(
-            "{0}i".format(self.nnodevars),
+            f"{self.nnodevars}i",
             self.fp.read(self.nnodevars * self.RECORDSIZE),
         )
 
         self.nlinkvars = struct.unpack("i", self.fp.read(self.RECORDSIZE))[0]
         self.vars[2] = struct.unpack(
-            "{0}i".format(self.nlinkvars),
+            f"{self.nlinkvars}i",
             self.fp.read(self.nlinkvars * self.RECORDSIZE),
         )
 
@@ -383,7 +379,7 @@ class SwmmExtract(object):
 
         self.nsystemvars = struct.unpack("i", self.fp.read(self.RECORDSIZE))[0]
         self.vars[4] = struct.unpack(
-            "{0}i".format(self.nsystemvars),
+            f"{self.nsystemvars}i",
             self.fp.read(self.nsystemvars * self.RECORDSIZE),
         )
 
@@ -417,14 +413,12 @@ class SwmmExtract(object):
             typenumber = self.itemlist.index(itemtype)
         except ValueError:
             raise ValueError(
-                """
+                f"""
 *
-*   Type argument "{0}" is incorrect.
-*   Must be in "{1}".
+*   Type argument "{itemtype}" is incorrect.
+*   Must be in "{list(range(5)) + self.itemlist}".
 *
-""".format(
-                    itemtype, list(range(5)) + self.itemlist
-                )
+"""
             )
         return typenumber
 
@@ -434,27 +428,23 @@ class SwmmExtract(object):
             itemindex = self.names[self.itemtype].index(str(itemname))
         except (ValueError, KeyError):
             raise ValueError(
-                """
+                f"""
 *
-*   {0} was not found in "{1}" list.
+*   {itemname} was not found in "{itemtype}" list.
 *
-""".format(
-                    itemname, itemtype
-                )
+"""
             )
         return (itemname, itemindex)
 
     def get_swmm_results(self, itemtype, name, variableindex, period):
         if itemtype not in [0, 1, 2, 4]:
             raise ValueError(
-                """
+                f"""
 *
 *   Type must be one of subcatchment (0), node (1). link (2), or system (4).
-*   You gave "{0}".
+*   You gave "{itemtype}".
 *
-""".format(
-                    itemtype
-                )
+"""
             )
 
         _, itemindex = self.name_check(itemtype, name)
@@ -611,7 +601,7 @@ def listdetail(filename, itemtype, name="", header="default"):
             cheader.append(head)
         else:
             cnt = cheader.count(head)
-            cheader.append("{0}.{1}".format(head, cnt))
+            cheader.append(f"{head}.{cnt}")
     df.columns = cheader
     return df
 
@@ -792,11 +782,7 @@ def extract(filename, *labels):
         jtsd.append(
             pd.DataFrame(
                 pd.Series(values, index=dates),
-                columns=[
-                    "{0}_{1}_{2}".format(
-                        itemtype, name, obj.varcode[typenumber][variableindex]
-                    )
-                ],
+                columns=[f"{itemtype}_{name}_{obj.varcode[typenumber][variableindex]}"],
             )
         )
     result = pd.concat(jtsd, axis=1).reindex(jtsd[0].index)

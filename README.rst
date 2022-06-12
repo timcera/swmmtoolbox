@@ -1,5 +1,5 @@
-.. image:: https://travis-ci.org/timcera/swmmtoolbox.svg?branch=master
-    :target: https://travis-ci.org/timcera/swmmtoolbox
+.. image:: https://github.com/timcera/swmmtoolbox/actions/workflows/python-package.yml/badge.svg
+    :target: https://github.com/timcera/swmmtoolbox/actions/workflows/python-package.yml
     :height: 20
 
 .. image:: https://coveralls.io/repos/timcera/swmmtoolbox/badge.png?branch=master
@@ -11,10 +11,14 @@
     :target: https://pypi.python.org/pypi/swmmtoolbox
 
 .. image:: http://img.shields.io/badge/license-BSD-lightgrey.svg
-    :alt: swmmtoolbox license
+    :alt: BSD-3 clause license
     :target: https://pypi.python.org/pypi/swmmtoolbox/
 
-SWMMToolbox - Overview
+.. image:: http://img.shields.io/pypi/dd/swmmtoolbox.svg
+    :alt: swmmtoolbox downloads
+    :target: https://pypi.python.org/pypi/swmmtoolbox/
+
+swmmtoolbox - Overview
 ----------------------
 The swmmtoolbox is a Python script to read the Storm Water Management Model
 (SWMM) version 5 binary output files.

@@ -2,7 +2,6 @@
 # Example package with a console entry point
 """Reads and formats data from the SWMM 5 output file."""
 
-from __future__ import absolute_import, print_function
 
 import copy
 import datetime

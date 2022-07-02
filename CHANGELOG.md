@@ -1,3 +1,14 @@
+## v3.4.1 (2022-07-02)
+
+### Fix
+
+- allow for man different approaches to specify labels
+
+### Refactor
+
+- removed __future__
+- moved to f strings
+
 ## v3.4.0 (2022-02-14)
 
 ## v3.3.5 (2021-11-12)

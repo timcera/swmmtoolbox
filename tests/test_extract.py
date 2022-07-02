@@ -97,3 +97,49 @@ class Testextract(TestCase):
         self.maxDiff = None
         ndf = self.extract_link.join(self.extract_node)
         assert_frame_equal(out, ndf)
+
+    def test_extract_node_list(self):
+        out = swmmtoolbox.extract(
+            os.path.join("tests", "frutal.out"), ["node", 222, "Hydraulic_head"]
+        )
+        out.index.name = "Datetime"
+        self.maxDiff = None
+        assert_frame_equal(out, self.extract_node)
+
+    def test_extract_link_list(self):
+        out = swmmtoolbox.extract(
+            os.path.join("tests", "frutal.out"), ["link", 222, "Flow_rate"]
+        )
+        out.index.name = "Datetime"
+        self.maxDiff = None
+        assert_frame_equal(out, self.extract_link)
+
+    def test_labels_str_list(self):
+        out = swmmtoolbox.extract(
+            os.path.join("tests", "frutal.out"),
+            [["link", 222, "Flow_rate"], ["node", 222, "Hydraulic_head"]],
+        )
+        out.index.name = "Datetime"
+        self.maxDiff = None
+        ndf = self.extract_link.join(self.extract_node)
+        assert_frame_equal(out, ndf)
+
+    def test_labels_list_list(self):
+        out = swmmtoolbox.extract(
+            os.path.join("tests", "frutal.out"),
+            [["link", 222, "Flow_rate"], ["node", 222, "Hydraulic_head"]],
+        )
+        out.index.name = "Datetime"
+        self.maxDiff = None
+        ndf = self.extract_link.join(self.extract_node)
+        assert_frame_equal(out, ndf)
+
+    def test_labels_list_strs_list(self):
+        out = swmmtoolbox.extract(
+            os.path.join("tests", "frutal.out"),
+            [["link", 222, "Flow_rate"], "node,222,Hydraulic_head"],
+        )
+        out.index.name = "Datetime"
+        self.maxDiff = None
+        ndf = self.extract_link.join(self.extract_node)
+        assert_frame_equal(out, ndf)

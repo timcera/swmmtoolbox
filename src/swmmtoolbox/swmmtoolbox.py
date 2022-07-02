@@ -728,9 +728,16 @@ def extract(filename, *labels):
     obj = SwmmExtract(filename)
     nlabels = []
 
-    labels = tsutils.make_list(labels, sep=" ")
+    # Don't look at the following code. It's just a hack to get the
+    # labels to work with the old syntax.
+    labels = tsutils.make_list(labels, sep=" ", flat=True)
+    plabels = []
+    for plabel in labels:
+        plabels.append(tsutils.make_list(plabel, sep=",", flat=True))
+    plabels = tsutils.flatten(plabels)
+    plabels = [plabels[i : i + 3] for i in range(0, len(plabels), 3)]
 
-    for label in labels:
+    for label in plabels:
         words = tsutils.make_list(label, n=3)
         if None not in words:
             nlabels.append(words)

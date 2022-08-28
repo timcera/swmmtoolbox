@@ -1,7 +1,88 @@
+[project]
+name = "swmmtoolbox"
+dynamic = ["version"]
+readme = "README.rst"
+description = "Command line script and Python library to manipulate time series."
+requires-python = ">=3.7.1"
+dependencies = [
+    "toolbox_utils < 1.0.0",
+    "cltoolbox >= 1.0.0",
+    ]
+license = {file = "LICENSE.txt"}
+authors = [
+    {name = "Tim Cera", email = "tim@cerazone.net"}
+    ]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Developers",
+    "Environment :: Console",
+    "License :: OSI Approved :: BSD License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    ]
+keywords = ["time-series",
+            "cli-app",
+            "swmm",
+            "stormwater",
+            "hydrograph",
+            "model",
+            "simulation",
+            "hydrology",
+            ]
 
-[tool.check-manifest]
-ignore = [".travis.yml",
-          "docs/_function_autosummary/*"]
+[project.optional-dependencies]
+dev = [
+    "black",
+    "cleanpy",
+    "twine",
+    "pytest",
+    "coverage",
+    "flake8",
+    "pytest-cov",
+    "pytest-mpl",
+    "pre-commit",
+    "black-nbconvert",
+    "blacken-docs",
+    "velin",
+    "isort",
+    "pyupgrade",
+    "commitizen",
+    ]
+
+[project.scripts]
+swmmtoolbox = "swmmtoolbox.swmmtoolbox:main"
+
+[project_urls]
+documentation = "https://timcera.bitbucket.io/swmmtoolbox/docs/index.html#swmmtoolbox-documentation"
+github = "https://github.com/timcera/swmmtoolbox"
+bitbucket = "https://bitbucket.org/timcera/swmmtoolbox/src/main/"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = {file = "VERSION"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["examples*", "tools*", "docs*", "swmmtoolbox.tests*"]
+
+[build-system]
+requires = [
+    "setuptools",
+    "wheel",
+    "oldest-supported-numpy",
+]
+build-backend = "setuptools.build_meta"
 
 [tool.commitizen]
 name = "cz_conventional_commits"

@@ -11,11 +11,13 @@ import sys
 import warnings
 from builtins import object, range, str, zip
 
-import mando
 import numpy as np
 import pandas as pd
-from mando.rst_text_formatter import RSTHelpFormatter
-from tstoolbox import tsutils
+from cltoolbox import Program
+from cltoolbox.rst_text_formatter import RSTHelpFormatter
+from toolbox_utils import tsutils
+
+program = Program("swmmtoolbox", 0.0)
 
 PROPCODE = {
     0: {1: "Area"},
@@ -496,13 +498,13 @@ class SwmmExtract(object):
         return st_end
 
 
-@mando.command()
+@program.command()
 def about():
     """Display version number and system information."""
     tsutils.about(__name__)
 
 
-@mando.command("catalog", formatter_class=RSTHelpFormatter, doctype="numpy")
+@program.command("catalog", formatter_class=RSTHelpFormatter)
 @tsutils.doc(_LOCAL_DOCSTRINGS)
 def catalog_cli(filename, itemtype="", tablefmt="csv_nos", header="default"):
     """List the catalog of objects in output file.
@@ -546,7 +548,7 @@ def catalog(filename, itemtype=""):
     return collect
 
 
-@mando.command("listdetail", formatter_class=RSTHelpFormatter, doctype="numpy")
+@program.command("listdetail", formatter_class=RSTHelpFormatter)
 @tsutils.doc(_LOCAL_DOCSTRINGS)
 def listdetail_cli(filename, itemtype, name="", tablefmt="simple", header="default"):
     """List nodes and metadata in output file.
@@ -605,7 +607,7 @@ def listdetail(filename, itemtype, name="", header="default"):
     return df
 
 
-@mando.command("listvariables", formatter_class=RSTHelpFormatter, doctype="numpy")
+@program.command("listvariables", formatter_class=RSTHelpFormatter)
 @tsutils.doc(_LOCAL_DOCSTRINGS)
 def listvariables_cli(filename, tablefmt="csv_nos", header="default"):
     """List variables available for each type.
@@ -641,7 +643,7 @@ def listvariables(filename, header="default"):
     return collect
 
 
-@mando.command("stdtoswmm5", formatter_class=RSTHelpFormatter, doctype="numpy")
+@program.command("stdtoswmm5", formatter_class=RSTHelpFormatter)
 @tsutils.doc(_LOCAL_DOCSTRINGS)
 def stdtoswmm5_cli(start_date=None, end_date=None, input_ts="-"):
     """Take the toolbox standard format and return SWMM5 format.
@@ -702,14 +704,14 @@ def stdtoswmm5(start_date=None, end_date=None, input_ts="-"):
         return
 
 
-@mando.command(formatter_class=RSTHelpFormatter, doctype="numpy")
+@program.command(formatter_class=RSTHelpFormatter)
 @tsutils.doc(_LOCAL_DOCSTRINGS)
 def getdata(filename, *labels):
     """DEPRECATED: Use 'extract' instead."""
     return extract(filename, *labels)
 
 
-@mando.command("extract", formatter_class=RSTHelpFormatter, doctype="numpy")
+@program.command("extract", formatter_class=RSTHelpFormatter)
 @tsutils.doc(_LOCAL_DOCSTRINGS)
 def extract_cli(filename, *labels):
     """Get the time series data for a particular object and variable.
@@ -843,7 +845,7 @@ DEPRECATED: Will be removed in future version. Instead use the following.
 def main():
     if not os.path.exists("debug_swmmtoolbox"):
         sys.tracebacklimit = 0
-    mando.main()
+    program()
 
 
 if __name__ == "__main__":

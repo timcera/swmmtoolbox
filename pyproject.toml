@@ -8,8 +8,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "swmmtoolbox"
-dynamic = ["version"]
-readme = "README.rst"
+dynamic = ["readme", "version"]
 description = "Command line script and Python library to manipulate time series."
 requires-python = ">=3.7.1"
 dependencies = [
@@ -82,6 +81,9 @@ version = "4.0.1"
 tag_format = "v$version"
 version_files = ["VERSION"]
 update_changelog_on_bump = true
+
+[tool.isort]
+profile = "black"
 
 [tool.setuptools]
 license-files = ["LICENSE.txt"]

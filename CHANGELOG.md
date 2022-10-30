@@ -1,3 +1,9 @@
+## v4.0.1 (2022-10-29)
+
+### Fix
+
+- **pyproject.toml**: fixed dependencies in pyproject.toml
+
 ## v4.0.0 (2022-10-29)
 
 ### Fix

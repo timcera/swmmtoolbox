@@ -1,3 +1,13 @@
+## v4.0.0 (2022-10-29)
+
+### Fix
+
+- worked out all changes supporting breaking change in toolbox_utils
+
+### Refactor
+
+- convert to toolbox_utils.tsutils and complete pyproject.toml
+
 ## v3.4.1 (2022-07-02)
 
 ### Fix

@@ -1,3 +1,9 @@
+## v4.0.2 (2022-10-29)
+
+### Fix
+
+- fixed pyproject to correctly find VERSION file for sdist
+
 ## v4.0.1 (2022-10-29)
 
 ### Fix

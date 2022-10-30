@@ -1,3 +1,11 @@
+[build-system]
+requires = [
+    "setuptools",
+    "wheel",
+    "oldest-supported-numpy",
+]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "swmmtoolbox"
 dynamic = ["version"]
@@ -5,10 +13,10 @@ readme = "README.rst"
 description = "Command line script and Python library to manipulate time series."
 requires-python = ">=3.7.1"
 dependencies = [
-    "toolbox_utils < 1.0.0",
+    "toolbox_utils >= 1.0.0, 2.0.0",
     "cltoolbox >= 1.0.0",
     ]
-license = {file = "LICENSE.txt"}
+license = {text = "BSD-3-Clause"}
 authors = [
     {name = "Tim Cera", email = "tim@cerazone.net"}
     ]
@@ -61,28 +69,12 @@ dev = [
 [project.scripts]
 swmmtoolbox = "swmmtoolbox.swmmtoolbox:main"
 
-[project_urls]
+[project.urls]
 documentation = "https://timcera.bitbucket.io/swmmtoolbox/docs/index.html#swmmtoolbox-documentation"
 github = "https://github.com/timcera/swmmtoolbox"
 bitbucket = "https://bitbucket.org/timcera/swmmtoolbox/src/main/"
 
-[tool.setuptools]
-include-package-data = true
-
-[tool.setuptools.dynamic]
-version = {file = "VERSION"}
-
-[tool.setuptools.packages.find]
-where = ["src"]
-exclude = ["examples*", "tools*", "docs*", "swmmtoolbox.tests*"]
-
-[build-system]
-requires = [
-    "setuptools",
-    "wheel",
-    "oldest-supported-numpy",
-]
-build-backend = "setuptools.build_meta"
+[tool]
 
 [tool.commitizen]
 name = "cz_conventional_commits"
@@ -90,3 +82,15 @@ version = "3.4.1"
 tag_format = "v$version"
 version_files = ["VERSION"]
 update_changelog_on_bump = true
+
+[tool.setuptools]
+license-files = ["LICENSE.txt"]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+readme = {file = "README.rst"}
+version = {file = "VERSION"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["examples*", "tools*", "docs*", "swmmtoolbox.tests*"]

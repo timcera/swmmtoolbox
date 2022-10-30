@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Example package with a console entry point
 """Reads and formats data from the SWMM 5 output file."""
 
@@ -9,7 +8,6 @@ import os
 import struct
 import sys
 import warnings
-from builtins import object, range, str, zip
 
 import numpy as np
 import pandas as pd
@@ -194,7 +192,7 @@ def tupleSearch(findme, haystack):
     return match
 
 
-class SwmmExtract(object):
+class SwmmExtract:
     """The class that handles all extraction of data from the out file."""
 
     def __init__(self, filename):
@@ -700,7 +698,7 @@ def stdtoswmm5(start_date=None, end_date=None, input_ts="-"):
             sep=" ",
             quoting=csv.QUOTE_NONE,
         )
-    except IOError:
+    except OSError:
         return
 
 

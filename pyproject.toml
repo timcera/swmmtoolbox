@@ -13,7 +13,7 @@ readme = "README.rst"
 description = "Command line script and Python library to manipulate time series."
 requires-python = ">=3.7.1"
 dependencies = [
-    "toolbox_utils >= 1.0.0, 2.0.0",
+    "toolbox_utils >= 1.0.0, < 2.0.0",
     "cltoolbox >= 1.0.0",
     ]
 license = {text = "BSD-3-Clause"}

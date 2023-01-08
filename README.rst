@@ -35,17 +35,10 @@ The swmmtoolbox is a Python script to read the Storm Water Management Model
 
 Requirements
 ============
-Python - of course, version 3.6+.
-
-The 'mando' library which should have been installed as a requirement.
-
-The 'tstoolbox' library and command line tool which should have been installed
-as a requirement.
-
-The PANDAS library which normally comes installed as part of Python
-distributions such as Anaconda, Enthought, or Pythonxy.
+Python - of course, version 3.7+.
 
 Installation
 ============
-Should be easy as ``pip install swmmtoolbox`` OR ``easy_install swmmtoolbox``
-depending on your choice of Python package managers.
+The swmmtoolbox is available on PyPI and can be installed with pip::
+
+    pip install swmmtoolbox

@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "swmmtoolbox"
 dynamic = ["readme", "version"]
-description = "Command line script and Python library to manipulate time series."
+description = "Command line script and Python library to read Storm Water Management Model binary output."
 requires-python = ">=3.7.1"
 dependencies = [
     "toolbox_utils >= 1.0.0, < 2.0.0",
@@ -28,10 +28,11 @@ classifiers = [
     "License :: OSI Approved :: BSD License",
     "Natural Language :: English",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Topic :: Scientific/Engineering :: Information Analysis",
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development :: Libraries :: Python Modules",
@@ -82,9 +83,6 @@ tag_format = "v$version"
 version_files = ["VERSION"]
 update_changelog_on_bump = true
 
-[tool.isort]
-profile = "black"
-
 [tool.setuptools]
 license-files = ["LICENSE.txt"]
 include-package-data = true
@@ -96,3 +94,6 @@ version = {file = "VERSION"}
 [tool.setuptools.packages.find]
 where = ["src"]
 exclude = ["examples*", "tools*", "docs*", "swmmtoolbox.tests*"]
+
+[tool.isort]
+profile = "black"

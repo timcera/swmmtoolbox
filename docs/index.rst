@@ -18,6 +18,7 @@ Table of Contents
 
    readme
    usage
+   command_line
    function_summary
    contributing
    authors

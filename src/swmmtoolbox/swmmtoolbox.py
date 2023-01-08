@@ -412,9 +412,9 @@ class SwmmExtract:
             raise ValueError(
                 tsutils.error_wrapper(
                     f"""
-                Type argument "{itemtype}" is incorrect.
-                Must be in "{list(range(5)) + self.itemlist}".
-                """
+                    Type argument "{itemtype}" is incorrect. Must be in
+                    "{list(range(5)) + self.itemlist}".
+                    """
                 )
             ) from exc
         return typenumber
@@ -427,8 +427,8 @@ class SwmmExtract:
             raise ValueError(
                 tsutils.error_wrapper(
                     f"""
-                {itemname} was not found in "{itemtype}" list.
-                """
+                    {itemname} was not found in "{itemtype}" list.
+                    """
                 )
             ) from exc
         return (itemname, itemindex)
@@ -438,9 +438,9 @@ class SwmmExtract:
             raise ValueError(
                 tsutils.error_wrapper(
                     f"""
-                Type must be one of subcatchment (0), node (1). link (2), or
-                system (4). You gave "{itemtype}".
-                """
+                    Type must be one of subcatchment (0), node (1). link (2),
+                    or system (4). You gave "{itemtype}".
+                    """
                 )
             )
 
@@ -797,12 +797,13 @@ def extract_arr(filename, *labels):
     warnings.warn(
         tsutils.error_wrapper(
             """
-DEPRECATED: Will be removed in future version. Instead use the following.
+            DEPRECATED: Will be removed in future version. Instead use the
+            following.
 
->>> from swmmtoolbox import swmmtoolbox
+            >>> from swmmtoolbox import swmmtoolbox
 
->>> na = swmmtoolbox.extract("filename.out", "link,41a,Flow_rate")[0].to_array()
-"""
+            >>> na = swmmtoolbox.extract("filename.out", "link,41a,Flow_rate")[0].to_array()
+            """
         )
     )
     obj = SwmmExtract(filename)

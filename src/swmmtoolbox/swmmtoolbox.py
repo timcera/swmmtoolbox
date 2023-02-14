@@ -539,13 +539,17 @@ def listdetail_cli(filename, itemtype, name="", tablefmt="simple", header="defau
     Parameters
     ----------
     ${filename}
+
     ${itemtype}
+
     name : str
         [optional, default is '']
 
         Specific name to print only that entry.  This can be
         looked up using 'listvariables'.
+
     ${tablefmt}
+
     ${header}
     """
     tsutils.printiso(

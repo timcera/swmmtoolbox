@@ -8,7 +8,6 @@ import os
 import sys
 from unittest import TestCase
 
-import six
 from pandas.util.testing import assert_frame_equal
 
 try:

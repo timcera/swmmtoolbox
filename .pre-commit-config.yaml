@@ -1,6 +1,10 @@
 ---
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
+
+default_language_version:
+    python: python3.8
+
 repos:
     - repo: https://github.com/pre-commit/pre-commit-hooks
       rev: v4.4.0
@@ -13,7 +17,6 @@ repos:
           - id: check-shebang-scripts-are-executable
           - id: check-toml
           - id: check-xml
-          # - id: check-yaml
           - id: end-of-file-fixer
             exclude: notebooks/tstoolbox_plot_bash.sh
           - id: fix-encoding-pragma
@@ -22,19 +25,14 @@ repos:
           - id: trailing-whitespace
             exclude: notebooks/tstoolbox_plot_bash.sh
 
-
-    - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-      rev: v2.5.0
+    - repo: https://github.com/pappasam/toml-sort
+      rev: v0.22.3
       hooks:
-          # - id: pretty-format-toml
-          #   args: [--autofix]
-          - id: pretty-format-java
-            args: [--autofix]
-          - id: pretty-format-kotlin
-            args: [--autofix]
+          - id: toml-sort-fix
+            args: [--in-place, --spaces-indent-inline-array, '4']
 
     - repo: https://github.com/adrienverge/yamllint.git
-      rev: v1.28.0
+      rev: v1.29.0
       hooks:
           - id: yamllint
             args: [--format, parsable, --strict]
@@ -44,29 +42,37 @@ repos:
       hooks:
           - id: yamlfmt
 
+    - repo: https://github.com/jumanjihouse/pre-commit-hooks
+      rev: 3.0.0
+      hooks:
+          - id: shellcheck
+            args: [-s, bash]
+
+    - repo: https://github.com/lovesegfault/beautysh
+      rev: v6.2.1
+      hooks:
+          - id: beautysh
+            args: [--indent-size, '4']
+
     - repo: https://github.com/psf/black
-      rev: 22.12.0
+      rev: 23.1.0
       hooks:
           - id: black
-            language_version: python
 
     - repo: https://github.com/pycqa/isort
-      rev: 5.11.4
+      rev: 5.12.0
       hooks:
           - id: isort
             name: isort (python)
-            # yamllint disable-line rule:line-length
-            args: [--profile, black, --filter-files, --line-length, '88', --multi-line, '3']
+            args: [--profile, black, --filter-files]
           - id: isort
             name: isort (cython)
             types: [cython]
-            # yamllint disable-line rule:line-length
-            args: [--profile, black, --filter-files, --line-length, '88', --multi-line, '3']
+            args: [--profile, black, --filter-files]
           - id: isort
             name: isort (pyi)
             types: [pyi]
-            # yamllint disable-line rule:line-length
-            args: [--profile, black, --filter-files, --line-length, '88', --multi-line, '3']
+            args: [--profile, black, --filter-files]
 
     - repo: https://github.com/dfm/black_nbconvert
       rev: v0.4.0
@@ -74,7 +80,7 @@ repos:
           - id: black_nbconvert
 
     - repo: https://github.com/asottile/blacken-docs
-      rev: v1.12.1
+      rev: 1.13.0
       hooks:
           - id: blacken-docs
 
@@ -84,7 +90,7 @@ repos:
           - id: pyupgrade
 
     - repo: https://github.com/commitizen-tools/commitizen
-      rev: v2.39.1
+      rev: v2.41.0
       hooks:
           - id: commitizen
             stages: [commit-msg]

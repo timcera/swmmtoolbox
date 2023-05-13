@@ -31,3 +31,4 @@ __pycache__/*
 .tox
 .tox/*
 docs/_function_autosummary
+debug_*

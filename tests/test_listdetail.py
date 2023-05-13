@@ -8,7 +8,7 @@ import os
 import sys
 from unittest import TestCase
 
-from pandas.util.testing import assert_frame_equal
+from pandas.testing import assert_frame_equal
 
 try:
     from cStringIO import StringIO

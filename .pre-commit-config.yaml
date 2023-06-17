@@ -29,7 +29,7 @@ repos:
             args: [--in-place, --spaces-indent-inline-array, '4']
 
     - repo: https://github.com/adrienverge/yamllint.git
-      rev: v1.31.0
+      rev: v1.32.0
       hooks:
           - id: yamllint
             args: [--format, parsable, --strict]
@@ -55,6 +55,7 @@ repos:
       rev: 23.3.0
       hooks:
           - id: black
+          - id: black-jupyter
 
     - repo: https://github.com/pycqa/isort
       rev: 5.12.0
@@ -71,18 +72,13 @@ repos:
             types: [pyi]
             args: [--profile, black, --filter-files]
 
-    - repo: https://github.com/dfm/black_nbconvert
-      rev: v0.4.0
-      hooks:
-          - id: black_nbconvert
-
     - repo: https://github.com/asottile/blacken-docs
       rev: 1.13.0
       hooks:
           - id: blacken-docs
 
     - repo: https://github.com/asottile/pyupgrade
-      rev: v3.4.0
+      rev: v3.6.0
       hooks:
           - id: pyupgrade
 
@@ -93,7 +89,7 @@ repos:
             stages: [commit-msg]
 
     - repo: https://github.com/mwouts/jupytext
-      rev: v1.14.5
+      rev: v1.14.6
       hooks:
           - id: jupytext
             args: [--from, ipynb, --to, auto:percent, --sync]

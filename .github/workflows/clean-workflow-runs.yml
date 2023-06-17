@@ -3,9 +3,9 @@ name: clean-workflow-runs
 
 on:  # yamllint disable-line rule:truthy
     push:
-        branches: [master]
+        branches: [main]
     pull_request:
-        branches: [master]
+        branches: [main]
     workflow_dispatch:
 
 jobs:
@@ -15,7 +15,7 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         steps:
             - name: Delete workflow runs
-              uses: dmvict/clean-workflow-runs@v1.0.0
+              uses: dmvict/clean-workflow-runs@v1.2.1
 
               with:
                   save_period: 5

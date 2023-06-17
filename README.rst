@@ -39,6 +39,49 @@ Python - of course, version 3.7+.
 
 Installation
 ============
-The swmmtoolbox is available on PyPI and can be installed with pip::
+The swmmtoolbox is available via pip or conda.
+
+pip
+~~~
+.. code-block:: bash
 
     pip install swmmtoolbox
+
+conda
+~~~~~
+.. code-block:: bash
+
+    conda install -c conda-forge swmmtoolbox
+
+Usage
+-----
+
+Command Line
+============
+Just run 'swmmtoolbox --help' to get a list of subcommands and options::
+
+    usage: swmmtoolbox [-h]
+                       {about,catalog,extract,listdetail,listvariables,stdtoswmm5}
+                       ...
+
+    positional arguments:
+      {about,catalog,extract,listdetail,listvariables,stdtoswmm5}
+        about               Display version number and system information.
+        catalog             List the catalog of objects in output file.
+        extract             Get the time series data for a particular object and
+                            variable.
+        listdetail          List nodes and metadata in output file.
+        listvariables       List variables available for each type.
+        stdtoswmm5          Take the toolbox standard format and return SWMM5
+                            format.
+
+    options:
+      -h, --help            show this help message and exit
+
+Python API
+==========
+Simply import swmmtoolbox::
+
+    import swmmtoolbox
+
+    ntsd = swmmtoolbox.extract("tests/frutal.out", "node,45,Hydraulic_head")

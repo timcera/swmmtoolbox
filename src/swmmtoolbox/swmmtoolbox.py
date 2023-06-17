@@ -7,16 +7,12 @@ import datetime
 import os
 import struct
 import sys
-import warnings
 from contextlib import suppress
 
-import numpy as np
 import pandas as pd
-from cltoolbox import Program
-from cltoolbox.rst_text_formatter import RSTHelpFormatter
 from toolbox_utils import tsutils
 
-program = Program("swmmtoolbox", 0.0)
+__all__ = ["catalog", "listdetail", "listvariables", "stdtoswmm5", "extract"]
 
 PROPCODE = {
     0: {1: "Area"},
@@ -403,6 +399,7 @@ class SwmmExtract:
         )
 
     def type_check(self, itemtype):
+        """Type check the itemtype argument."""
         if itemtype in (0, 1, 2, 3, 4):
             return itemtype
 
@@ -420,6 +417,7 @@ class SwmmExtract:
         return typenumber
 
     def name_check(self, itemtype, itemname):
+        """Check that the itemname is in the itemtype list."""
         self.itemtype = self.type_check(itemtype)
         try:
             itemindex = self.names[self.itemtype].index(str(itemname))
@@ -434,6 +432,7 @@ class SwmmExtract:
         return (itemname, itemindex)
 
     def get_swmm_results(self, itemtype, name, variableindex, period):
+        """Get the SWMM results for the given itemtype, name, variableindex, and period."""
         if itemtype not in (0, 1, 2, 4):
             raise ValueError(
                 tsutils.error_wrapper(
@@ -481,15 +480,8 @@ class SwmmExtract:
         return (date, value)
 
 
-@program.command()
-def about():
-    """Display version number and system information."""
-    tsutils.about(__name__)
-
-
-@program.command("catalog", formatter_class=RSTHelpFormatter)
 @tsutils.doc(_LOCAL_DOCSTRINGS)
-def catalog_cli(filename, itemtype="", tablefmt="csv_nos", header="default"):
+def catalog(filename, itemtype=""):
     """List the catalog of objects in output file.
 
     This catalog list is all of the labels that can be used in the extract
@@ -502,15 +494,6 @@ def catalog_cli(filename, itemtype="", tablefmt="csv_nos", header="default"):
     ${tablefmt}
     ${header}
     """
-    if header == "default":
-        header = ["TYPE", "NAME", "VARIABLE"]
-    tsutils.printiso(
-        catalog(filename, itemtype=itemtype), headers=header, tablefmt=tablefmt
-    )
-
-
-def catalog(filename, itemtype=""):
-    """List the catalog of objects in output file."""
     obj = SwmmExtract(filename)
     if itemtype:
         typenumber = obj.type_check(itemtype)
@@ -531,9 +514,8 @@ def catalog(filename, itemtype=""):
     return collect
 
 
-@program.command("listdetail", formatter_class=RSTHelpFormatter)
 @tsutils.doc(_LOCAL_DOCSTRINGS)
-def listdetail_cli(filename, itemtype, name="", tablefmt="simple", header="default"):
+def listdetail(filename, itemtype, name="", header="default"):
     """List nodes and metadata in output file.
 
     Parameters
@@ -552,13 +534,6 @@ def listdetail_cli(filename, itemtype, name="", tablefmt="simple", header="defau
 
     ${header}
     """
-    tsutils.printiso(
-        listdetail(filename, itemtype, name=name, header=header), tablefmt=tablefmt
-    )
-
-
-def listdetail(filename, itemtype, name="", header="default"):
-    """List nodes and metadata in output file."""
     obj = SwmmExtract(filename)
     typenumber = obj.type_check(itemtype)
     if name:
@@ -594,9 +569,8 @@ def listdetail(filename, itemtype, name="", header="default"):
     return dfc
 
 
-@program.command("listvariables", formatter_class=RSTHelpFormatter)
 @tsutils.doc(_LOCAL_DOCSTRINGS)
-def listvariables_cli(filename, tablefmt="csv_nos", header="default"):
+def listvariables(filename, header="default"):
     """List variables available for each type.
 
     The type are "subcatchment", "node", "link", "pollutant", "system".
@@ -607,12 +581,6 @@ def listvariables_cli(filename, tablefmt="csv_nos", header="default"):
     ${tablefmt}
     ${header}
     """
-
-    tsutils.printiso(listvariables(filename, header=header), tablefmt=tablefmt)
-
-
-def listvariables(filename, header="default"):
-    """List variables available for each type."""
     obj = SwmmExtract(filename)
     if header == "default":
         header = ["TYPE", "DESCRIPTION", "VARINDEX"]
@@ -630,9 +598,8 @@ def listvariables(filename, header="default"):
     return collect
 
 
-@program.command("stdtoswmm5", formatter_class=RSTHelpFormatter)
 @tsutils.doc(_LOCAL_DOCSTRINGS)
-def stdtoswmm5_cli(start_date=None, end_date=None, input_ts="-"):
+def stdtoswmm5(start_date=None, end_date=None, input_ts="-"):
     """Take the toolbox standard format and return SWMM5 format.
 
     Toolbox standard::
@@ -655,13 +622,6 @@ def stdtoswmm5_cli(start_date=None, end_date=None, input_ts="-"):
     ${start_date}
     ${end_date}
     """
-    tsutils.printiso(
-        stdtoswmm5(start_date=start_date, end_date=end_date, input_ts=input_ts)
-    )
-
-
-def stdtoswmm5(start_date=None, end_date=None, input_ts="-"):
-    """Take the toolbox standard format and return SWMM5 format."""
     sys.tracebacklimit = 1000
     tsd = tsutils.read_iso_ts(input_ts)[start_date:end_date]
     try:
@@ -689,16 +649,8 @@ def stdtoswmm5(start_date=None, end_date=None, input_ts="-"):
         return
 
 
-@program.command(formatter_class=RSTHelpFormatter)
 @tsutils.doc(_LOCAL_DOCSTRINGS)
-def getdata(filename, *labels):
-    """DEPRECATED: Use 'extract' instead."""
-    return extract(filename, *labels)
-
-
-@program.command("extract", formatter_class=RSTHelpFormatter)
-@tsutils.doc(_LOCAL_DOCSTRINGS)
-def extract_cli(filename, *labels):
+def extract(filename, *labels):
     """Get the time series data for a particular object and variable.
 
     Parameters
@@ -707,11 +659,6 @@ def extract_cli(filename, *labels):
     ${labels}
 
     """
-    tsutils.printiso(extract(filename, *labels))
-
-
-def extract(filename, *labels):
-    """Get the time series data for a particular object and variable."""
     obj = SwmmExtract(filename)
     nlabels = []
 
@@ -780,56 +727,61 @@ def extract(filename, *labels):
     return result
 
 
-@tsutils.doc(_LOCAL_DOCSTRINGS)
-def extract_arr(filename, *labels):
-    """DEPRECATED: Extract and return the raw numpy array.
-
-    DEPRECATED: Will be removed in future version. Instead use the following.
-
-    >>> from swmmtoolbox import swmmtoolbox
-    >>> na = swmmtoolbox.extract("filename.out", "link,41a,Flow_rate")[0].to_array()
-
-    The `extract_arr` function will return the numpy array for the last entry
-    in "*labels".
-
-    Parameters
-    ----------
-    ${filename}
-    ${labels}
-
-    """
-    warnings.warn(
-        tsutils.error_wrapper(
-            """
-            DEPRECATED: Will be removed in future version. Instead use the
-            following.
-
-            >>> from swmmtoolbox import swmmtoolbox
-
-            >>> na = swmmtoolbox.extract("filename.out", "link,41a,Flow_rate")[0].to_array()
-            """
-        )
-    )
-    obj = SwmmExtract(filename)
-    for label in labels:
-        itemtype, name, variableindex = tsutils.make_list(label, n=3)
-        typenumber = obj.type_check(itemtype)
-        if itemtype != "system":
-            name = obj.name_check(itemtype, name)[0]
-
-        data = np.zeros(len(list(range(obj.swmm_nperiods))))
-
-        for time in range(obj.swmm_nperiods):
-            _, value = obj.get_swmm_results(typenumber, name, int(variableindex), time)
-            data[time] = value
-
-    return data
-
-
 def main():
+    """Command line interface."""
+
+    import cltoolbox
+    from cltoolbox.rst_text_formatter import RSTHelpFormatter
+
     if not os.path.exists("debug_swmmtoolbox"):
         sys.tracebacklimit = 0
-    program()
+
+    @cltoolbox.command()
+    def about():
+        """Display version number and system information."""
+        tsutils.about(__name__)
+
+    @cltoolbox.command("catalog", formatter_class=RSTHelpFormatter)
+    @tsutils.copy_doc(catalog)
+    def catalog_cli(filename, itemtype="", tablefmt="csv_nos", header="default"):
+        """List the catalog in a SWMM5 file."""
+        if header == "default":
+            header = ["TYPE", "NAME", "VARIABLE"]
+        tsutils.printiso(
+            catalog(filename, itemtype=itemtype), headers=header, tablefmt=tablefmt
+        )
+
+    @cltoolbox.command("extract", formatter_class=RSTHelpFormatter)
+    @tsutils.copy_doc(extract)
+    def extract_cli(filename, *labels):
+        """Get the time series data for a particular object and variable."""
+        tsutils.printiso(extract(filename, *labels))
+
+    @cltoolbox.command("listdetail", formatter_class=RSTHelpFormatter)
+    @tsutils.copy_doc(listdetail)
+    def listdetail_cli(
+        filename, itemtype, name="", tablefmt="simple", header="default"
+    ):
+        """List the variables in a SWMM5 file."""
+        tsutils.printiso(
+            listdetail(filename, itemtype, name=name, header=header), tablefmt=tablefmt
+        )
+
+    @cltoolbox.command("listvariables", formatter_class=RSTHelpFormatter)
+    @tsutils.copy_doc(listvariables)
+    def listvariables_cli(filename, tablefmt="csv_nos", header="default"):
+        """List the variables in a SWMM5 file."""
+        tsutils.printiso(listvariables(filename, header=header), tablefmt=tablefmt)
+
+    @cltoolbox.command("stdtoswmm5", formatter_class=RSTHelpFormatter)
+    @tsutils.copy_doc(stdtoswmm5)
+    def stdtoswmm5_cli(start_date=None, end_date=None, input_ts="-"):
+        """Convert standard time series to SWMM5 time series."""
+        tsutils.printiso(
+            stdtoswmm5(start_date=start_date, end_date=end_date, input_ts=input_ts)
+        )
+
+    cltoolbox.main()
 
 
 if __name__ == "__main__":

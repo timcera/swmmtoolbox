@@ -1,3 +1,9 @@
+## v4.0.7 (2023-06-17)
+
+### Refactor
+
+- moved all command line functions into main and improved docs
+
 ## v4.0.6 (2023-02-13)
 
 ### Refactor

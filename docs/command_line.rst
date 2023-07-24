@@ -22,11 +22,6 @@ extract
 .. program-output:: swmmtoolbox extract --help
    :prompt:
 
-getdata
-~~~~~~~
-.. program-output:: swmmtoolbox getdata --help
-   :prompt:
-
 listdetail
 ~~~~~~~~~~
 .. program-output:: swmmtoolbox listdetail --help

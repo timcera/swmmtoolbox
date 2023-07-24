@@ -52,7 +52,7 @@ repos:
             args: [--indent-size, '4']
 
     - repo: https://github.com/psf/black
-      rev: 23.3.0
+      rev: 23.7.0
       hooks:
           - id: black
           - id: black-jupyter
@@ -73,23 +73,23 @@ repos:
             args: [--profile, black, --filter-files]
 
     - repo: https://github.com/asottile/blacken-docs
-      rev: 1.13.0
+      rev: 1.15.0
       hooks:
           - id: blacken-docs
 
     - repo: https://github.com/asottile/pyupgrade
-      rev: v3.6.0
+      rev: v3.9.0
       hooks:
           - id: pyupgrade
 
     - repo: https://github.com/commitizen-tools/commitizen
-      rev: 3.2.2
+      rev: 3.5.3
       hooks:
           - id: commitizen
             stages: [commit-msg]
 
     - repo: https://github.com/mwouts/jupytext
-      rev: v1.14.6
+      rev: v1.14.7
       hooks:
           - id: jupytext
             args: [--from, ipynb, --to, auto:percent, --sync]

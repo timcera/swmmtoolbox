@@ -105,7 +105,7 @@ ignore = [
 name = "cz_conventional_commits"
 tag_format = "v$version"
 update_changelog_on_bump = true
-version = "4.0.9"
+version = "4.0.10"
 version_files = ["VERSION"]
 
 [tool.isort]

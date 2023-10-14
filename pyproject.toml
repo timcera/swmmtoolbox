@@ -12,7 +12,13 @@ name = "swmmtoolbox"
 dynamic = ["readme", "version"]
 description = "Command line script and Python library to read Storm Water Management Model binary output."
 dependencies = [
-    "cltoolbox >= 1.0.0"
+    "cltoolbox >= 1.0.0",
+    "pandas",
+    "dateparser",
+    "pint_pandas",
+    "pydantic",
+    "scipy",
+    "tabulate"
 ]
 authors = [
     {name = "Tim Cera", email = "tim@cerazone.net"}

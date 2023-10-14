@@ -13,6 +13,7 @@ dynamic = ["readme", "version"]
 description = "Command line script and Python library to read Storm Water Management Model binary output."
 dependencies = [
     "cltoolbox >= 1.0.0",
+    "dateparser",
     "numpy",
     "pandas[excel]",
     "pint!=0.21.*",

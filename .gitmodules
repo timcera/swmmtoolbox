@@ -1,0 +1,3 @@
+[submodule "src/swmmtoolbox/toolbox_utils"]
+	path = src/swmmtoolbox/toolbox_utils
+	url = git@github.com:timcera/toolbox_utils.git

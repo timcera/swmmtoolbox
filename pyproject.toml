@@ -12,7 +12,6 @@ name = "swmmtoolbox"
 dynamic = ["readme", "version"]
 description = "Command line script and Python library to read Storm Water Management Model binary output."
 dependencies = [
-    "toolbox_utils >= 5.0.0, < 6.0.0",
     "cltoolbox >= 1.0.0"
 ]
 authors = [
@@ -103,6 +102,9 @@ version_files = ["VERSION"]
 [tool.isort]
 profile = "black"
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
 [tool.setuptools]
 license-files = ["LICENSE.txt"]
 include-package-data = true
@@ -112,7 +114,7 @@ readme = {file = "README.rst"}
 version = {file = "VERSION"}
 
 [tool.setuptools.packages.find]
-exclude = ["examples*", "tools*", "docs*", "swmmtoolbox.tests*"]
+exclude = ["dist", "examples*", "tools*", "docs", "tests", "swmmtoolbox.tests*"]
 where = ["src"]
 
 [tool.setuptools_scm]

@@ -10,7 +10,8 @@ import sys
 from contextlib import suppress
 
 import pandas as pd
-from toolbox_utils import tsutils
+
+from .toolbox_utils.src.toolbox_utils import tsutils
 
 __all__ = ["catalog", "listdetail", "listvariables", "stdtoswmm5", "extract"]
 

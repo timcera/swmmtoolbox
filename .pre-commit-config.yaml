@@ -29,7 +29,7 @@ repos:
             args: [--in-place, --spaces-indent-inline-array, '4']
 
     - repo: https://github.com/adrienverge/yamllint.git
-      rev: v1.32.0
+      rev: v1.33.0
       hooks:
           - id: yamllint
             args: [--format, parsable, --strict]
@@ -52,7 +52,7 @@ repos:
             args: [--indent-size, '4']
 
     - repo: https://github.com/psf/black
-      rev: 23.9.1
+      rev: 23.11.0
       hooks:
           - id: black
           - id: black-jupyter
@@ -83,7 +83,7 @@ repos:
           - id: pyupgrade
 
     - repo: https://github.com/commitizen-tools/commitizen
-      rev: 3.10.0
+      rev: 3.12.0
       hooks:
           - id: commitizen
             stages: [commit-msg]

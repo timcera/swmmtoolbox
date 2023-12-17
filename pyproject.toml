@@ -123,7 +123,7 @@ readme = {file = "README.rst"}
 version = {file = "VERSION"}
 
 [tool.setuptools.packages.find]
-exclude = ["dist", "examples*", "tools*", "docs", "tests", "swmmtoolbox.tests*"]
+exclude = ["tests*", "dist", "examples*", "tools*", "docs", "tests", "swmmtoolbox.tests*"]
 where = ["src"]
 
 [tool.setuptools_scm]

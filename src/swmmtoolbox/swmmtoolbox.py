@@ -253,11 +253,7 @@ class SwmmExtract:
             self.swmm_npolluts,
         ) = struct.unpack("6i", self.fpb.read(6 * self.record_size))
 
-        if version < 5100:
-            varcode = VARCODE_OLD
-        else:
-            varcode = VARCODE
-
+        varcode = VARCODE_OLD if version < 5100 else VARCODE
         self.itemlist = ["subcatchment", "node", "link", "pollutant", "system"]
 
         # Read in the names
@@ -510,8 +506,10 @@ def catalog(filename, itemtype=""):
             if obj.itemlist[i] == "system":
                 collect.append(["system", oname, oname])
                 continue
-            for j in obj.vars[typenumber]:
-                collect.append([obj.itemlist[i], oname, obj.varcode[typenumber][j]])
+            collect.extend(
+                [obj.itemlist[i], oname, obj.varcode[typenumber][j]]
+                for j in obj.vars[typenumber]
+            )
     return collect
 
 
@@ -666,9 +664,7 @@ def extract(filename, *labels):
     # Don't look at the following code. It's just a hack to get the
     # labels to work with the old syntax.
     labels = tsutils.make_list(labels, sep=" ", flat=True)
-    plabels = []
-    for plabel in labels:
-        plabels.append(tsutils.make_list(plabel, sep=",", flat=True))
+    plabels = [tsutils.make_list(plabel, sep=",", flat=True) for plabel in labels]
     plabels = tsutils.flatten(plabels)
     plabels = [plabels[i : i + 3] for i in range(0, len(plabels), 3)]
 
@@ -708,11 +704,10 @@ def extract(filename, *labels):
             days = int(date)
             seconds = int((date - days) * 86400)
             extra = seconds % 10
-            if extra != 0:
-                if extra == 9:
-                    seconds = seconds + 1
-                if extra == 1:
-                    seconds = seconds - 1
+            if extra == 1:
+                seconds -= 1
+            elif extra == 9:
+                seconds += 1
             date = begindate + datetime.timedelta(days=days, seconds=seconds)
             dates.append(date)
             values.append(value)
@@ -724,8 +719,7 @@ def extract(filename, *labels):
                 columns=[f"{itemtype}_{name}_{obj.varcode[typenumber][variableindex]}"],
             )
         )
-    result = pd.concat(jtsd, axis=1).reindex(jtsd[0].index)
-    return result
+    return pd.concat(jtsd, axis=1).reindex(jtsd[0].index)
 
 
 def main():

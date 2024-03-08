@@ -29,7 +29,7 @@ repos:
             args: [--in-place, --spaces-indent-inline-array, '4']
 
     - repo: https://github.com/adrienverge/yamllint.git
-      rev: v1.33.0
+      rev: v1.35.1
       hooks:
           - id: yamllint
             args: [--format, parsable, --strict]
@@ -52,13 +52,13 @@ repos:
             args: [--indent-size, '4']
 
     - repo: https://github.com/psf/black
-      rev: 23.11.0
+      rev: 24.2.0
       hooks:
           - id: black
           - id: black-jupyter
 
     - repo: https://github.com/pycqa/isort
-      rev: 5.12.0
+      rev: 5.13.2
       hooks:
           - id: isort
             name: isort (python)
@@ -78,18 +78,18 @@ repos:
           - id: blacken-docs
 
     - repo: https://github.com/asottile/pyupgrade
-      rev: v3.15.0
+      rev: v3.15.1
       hooks:
           - id: pyupgrade
 
     - repo: https://github.com/commitizen-tools/commitizen
-      rev: 3.12.0
+      rev: v3.18.0
       hooks:
           - id: commitizen
             stages: [commit-msg]
 
     - repo: https://github.com/mwouts/jupytext
-      rev: v1.15.2
+      rev: v1.16.1
       hooks:
           - id: jupytext
             args: [--from, ipynb, --to, auto:percent, --sync]

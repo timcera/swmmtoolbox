@@ -52,7 +52,7 @@ repos:
             args: [--indent-size, '4']
 
     - repo: https://github.com/psf/black
-      rev: 24.2.0
+      rev: 24.3.0
       hooks:
           - id: black
           - id: black-jupyter
@@ -83,7 +83,7 @@ repos:
           - id: pyupgrade
 
     - repo: https://github.com/commitizen-tools/commitizen
-      rev: v3.18.0
+      rev: v3.20.0
       hooks:
           - id: commitizen
             stages: [commit-msg]

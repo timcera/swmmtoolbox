@@ -78,12 +78,12 @@ repos:
           - id: blacken-docs
 
     - repo: https://github.com/asottile/pyupgrade
-      rev: v3.15.1
+      rev: v3.15.2
       hooks:
           - id: pyupgrade
 
     - repo: https://github.com/commitizen-tools/commitizen
-      rev: v3.20.0
+      rev: v3.21.3
       hooks:
           - id: commitizen
             stages: [commit-msg]

@@ -1,0 +1,89 @@
+---
+# This workflow will install Python dependencies, run tests and lint with
+# a variety of Python versions For more information see:
+# https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: PyPI package upload
+
+on:  # yamllint disable-line rule:truthy
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+    workflow_dispatch:
+
+jobs:
+    test:
+        name: Test on Python ${{ matrix.python-version }}
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  submodules: recursive
+
+            - name: Set up Python ${{ matrix.python-version }}
+              uses: actions/setup-python@v4
+              with:
+                  python-version: ${{ matrix.python-version }}
+
+            - name: Install dependencies
+              run: |
+                  sudo apt-get update
+                  python -m pip install --upgrade pip
+                  python -m pip install pytest pytest-cov pytest-mpl
+                  python -m pip install -e .
+
+            - name: Test with pytest
+              run: |
+                  python -m pytest --cov --mpl
+
+            - name: Upload coverage data to coveralls.io
+              uses: coverallsapp/github-action@v2
+              with:
+                  parallel: true
+
+    finish_coveralls:
+        needs: test
+        if: ${{ always() }}
+        runs-on: ubuntu-latest
+        steps:
+            - name: Coveralls Finished
+              uses: coverallsapp/github-action@v2
+              with:
+                  parallel-finished: true
+
+    pypi-publish:
+        needs: test
+        runs-on: ubuntu-latest
+        environment: release
+        name: upload release to PyPI
+
+        permissions:
+            # IMPORTANT: this permission is mandatory for trusted publishing
+            id-token: write
+
+        steps:
+            - name: Checkout source
+              uses: actions/checkout@v4
+
+            - name: Build sdist and wheel
+              run: |
+                  python -m pip install build
+                  python -m build
+
+            - name: Download artifact
+              uses: actions/download-artifact@v4
+              with:
+                  path: dist
+                  merge-multiple: true
+
+            - name: Publish package distributions to PyPI
+              uses: pypa/gh-action-pypi-publish@release/v1
+              with:
+                  skip-existing: true

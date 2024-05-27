@@ -3,29 +3,26 @@
 # a variety of Python versions For more information see:
 # https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-
 name: Tests
-
 
 on:  # yamllint disable-line rule:truthy
     push:
-        branches: [main]
+        branches: [develop]
     pull_request:
-        branches: [main]
+        branches: [develop]
     workflow_dispatch:
-
 
 jobs:
     test:
-
         runs-on: ubuntu-latest
         strategy:
             fail-fast: false
             matrix:
-                python-version: ['3.8', '3.9', '3.10', '3.11']
+                python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
 
         steps:
-            - uses: actions/checkout@v3
+            - name: Checkout repository
+              uses: actions/checkout@v3
               with:
                   submodules: recursive
 
@@ -37,33 +34,25 @@ jobs:
             - name: Install dependencies
               run: |
                   sudo apt-get update
-                  sudo apt-get install gdal-bin libgdal-dev proj-bin
                   python -m pip install --upgrade pip
-                  python -m pip install flake8 pytest pytest-cov pytest-mpl
-                  python -m pip install coverage[toml]
-                  python -m pip install coveralls
-                  python -m pip install -e .
+                  python -m pip install pytest pytest-cov pytest-mpl
+                  python -m pip install .
 
             - name: Test with pytest
               run: |
                   python -m pytest --cov --mpl
 
             - name: Upload coverage data to coveralls.io
-              run: coveralls --service=github
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  COVERALLS_FLAG_NAME: ${{ matrix.test-name }}
-                  COVERALLS_PARALLEL: true
+              uses: coverallsapp/github-action@v2
+              with:
+                  parallel: true
 
-    coveralls:
-        name: Indicate completion to coveralls.io
+    finish:
         needs: test
+        if: ${{ always() }}
         runs-on: ubuntu-latest
-        container: python:3-slim
         steps:
-            - name: Finished
-              run: |
-                  pip3 install --upgrade coveralls
-                  coveralls --service=github --finish
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Coveralls Finished
+              uses: coverallsapp/github-action@v2
+              with:
+                  parallel-finished: true

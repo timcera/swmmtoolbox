@@ -659,28 +659,19 @@ def extract(filename, *labels):
 
     """
     obj = SwmmExtract(filename)
+
+    if len(labels) == 1:
+        labels = labels[0]
+
     nlabels = []
-
-    # Don't look at the following code. It's just a hack to get the
-    # labels to work with the old syntax.
-    labels = tsutils.make_list(labels, sep=" ", flat=True)
-    plabels = [tsutils.make_list(plabel, sep=",", flat=True) for plabel in labels]
-    plabels = tsutils.flatten(plabels)
-    plabels = [plabels[i : i + 3] for i in range(0, len(plabels), 3)]
-
-    for label in plabels:
-        words = tsutils.make_list(label, n=3)
-        if None not in words:
-            nlabels.append(words)
-            continue
+    for words in labels:
         with suppress(ValueError, TypeError):
-            words[2] = int(words[2])
+            words[2] = str(words[2])
             typenumber = obj.type_check(words[2])
             words[2] = obj.varcode[typenumber][words[2]]
         words = [str(i) if i is not None else None for i in words]
         res = tuple_search(words, catalog(filename))
         nlabels = nlabels + res
-
     jtsd = []
 
     for itemtype, name, variablename in nlabels:
@@ -750,7 +741,8 @@ def main():
     @tsutils.copy_doc(extract)
     def extract_cli(filename, *labels):
         """Get the time series data for a particular object and variable."""
-        tsutils.printiso(extract(filename, *labels))
+        labels = [i.split(",") for i in labels]
+        tsutils.printiso(extract(filename, labels))
 
     @cltoolbox.command("listdetail", formatter_class=RSTHelpFormatter)
     @tsutils.copy_doc(listdetail)

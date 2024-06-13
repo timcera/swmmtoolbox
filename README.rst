@@ -1,6 +1,6 @@
-.. image:: https://github.com/timcera/swmmtoolbox/actions/workflows/python-package.yml/badge.svg
+.. image:: https://github.com/timcera/swmmtoolbox/actions/workflows/pypi-package.yml/badge.svg
     :alt: Tests
-    :target: https://github.com/timcera/swmmtoolbox/actions/workflows/python-package.yml
+    :target: https://github.com/timcera/swmmtoolbox/actions/workflows/pypi-package.yml
     :height: 20
 
 .. image:: https://img.shields.io/coveralls/github/timcera/swmmtoolbox

@@ -3,7 +3,7 @@
 # a variety of Python versions For more information see:
 # https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: PyPI package upload
+name: PyPI package tests
 
 on:  # yamllint disable-line rule:truthy
     push:
@@ -71,6 +71,8 @@ jobs:
         steps:
             - name: Checkout source
               uses: actions/checkout@v4
+              with:
+                  submodules: recursive
 
             - name: Build sdist and wheel
               run: |

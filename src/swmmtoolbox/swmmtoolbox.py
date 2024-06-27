@@ -121,21 +121,15 @@ _SWMM_FLOWUNITS = {0: "CFS", 1: "GPM", 2: "MGD", 3: "CMS", 4: "LPS", 5: "LPD"}
 
 
 _LOCAL_DOCSTRINGS = tsutils.docstrings
-_LOCAL_DOCSTRINGS[
-    "filename"
-] = """filename : str
+_LOCAL_DOCSTRINGS["filename"] = """filename : str
         Filename of SWMM output file.  The SWMM model must complete
         successfully for "swmmtoolbox" to correctly read it.
         """
-_LOCAL_DOCSTRINGS[
-    "itemtype"
-] = """itemtype : str
+_LOCAL_DOCSTRINGS["itemtype"] = """itemtype : str
         One of 'system', 'node', 'link', or 'pollutant' to identify the
         type of data you want to extract.
         """
-_LOCAL_DOCSTRINGS[
-    "labels"
-] = """labels : str
+_LOCAL_DOCSTRINGS["labels"] = """labels : str
         The remaining arguments uniquely identify a time-series
         in the binary file.  The format is::
 

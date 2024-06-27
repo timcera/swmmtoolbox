@@ -3,8 +3,7 @@ build-backend = "setuptools.build_meta"
 requires = [
     "setuptools>=45",
     "setuptools_scm[toml]>=6.2",
-    "wheel",
-    "oldest-supported-numpy"
+    "wheel"
 ]
 
 [project]
@@ -57,34 +56,6 @@ keywords = [
 license = {text = "BSD-3-Clause"}
 requires-python = ">=3.8"
 
-[project.optional-dependencies]
-dev = [
-    "bandit",
-    "black",
-    "blacken-docs",
-    "black-nbconvert",
-    "cleanpy",
-    "commitizen",
-    "coverage[toml]",
-    "isort",
-    "mypy",
-    "pre-commit",
-    "pyflakes",
-    "pylama",
-    "pyle",
-    "pylint",
-    "pyre",
-    "pyroma",
-    "pytest",
-    "pytest-cov",
-    "pytest-mpl",
-    "pyupgrade",
-    "twine",
-    "unimport",
-    "velin",
-    "vulture"
-]
-
 [project.scripts]
 swmmtoolbox = "swmmtoolbox.swmmtoolbox:main"
 
@@ -92,14 +63,6 @@ swmmtoolbox = "swmmtoolbox.swmmtoolbox:main"
 documentation = "https://timcera.bitbucket.io/swmmtoolbox/docs/index.html#swmmtoolbox-documentation"
 github = "https://github.com/timcera/swmmtoolbox"
 bitbucket = "https://bitbucket.org/timcera/swmmtoolbox/src/main/"
-
-[tool.check-manifest]
-ignore = [
-    "docs/_function_autosummary/*",
-    ".coverage",
-    ".deepsource.toml",
-    ".ipynb_checkpoints/*"
-]
 
 [tool.commitizen]
 name = "cz_conventional_commits"
@@ -123,7 +86,6 @@ readme = {file = "README.rst"}
 version = {file = "VERSION"}
 
 [tool.setuptools.packages.find]
-exclude = ["tests*", "dist", "examples*", "tools*", "docs", "tests", "swmmtoolbox.tests*"]
 where = ["src"]
 
 [tool.setuptools_scm]

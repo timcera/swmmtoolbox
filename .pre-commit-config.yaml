@@ -11,7 +11,7 @@ exclude: |
 
 repos:
     - repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v4.6.0
+      rev: v5.0.0
       hooks:
           - id: check-case-conflict
           - id: check-docstring-first
@@ -31,7 +31,7 @@ repos:
 
     - repo: https://github.com/astral-sh/ruff-pre-commit
       # Ruff version.
-      rev: v0.6.5
+      rev: v0.8.3
       hooks:
           # Run the linter.
           - id: ruff
@@ -54,7 +54,7 @@ repos:
             types: [pyi]
 
     - repo: https://github.com/pappasam/toml-sort
-      rev: v0.23.1
+      rev: v0.24.2
       hooks:
           - id: toml-sort-fix
             args: [--in-place, --spaces-indent-inline-array, '4']
@@ -83,17 +83,17 @@ repos:
             args: [--indent-size, '4']
 
     - repo: https://github.com/asottile/blacken-docs
-      rev: 1.18.0
+      rev: 1.19.1
       hooks:
           - id: blacken-docs
 
     - repo: https://github.com/asottile/pyupgrade
-      rev: v3.17.0
+      rev: v3.19.0
       hooks:
           - id: pyupgrade
 
     - repo: https://github.com/commitizen-tools/commitizen
-      rev: v3.29.0
+      rev: v4.1.0
       hooks:
           - id: commitizen
             stages: [commit-msg]

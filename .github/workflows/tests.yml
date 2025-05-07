@@ -11,14 +11,47 @@ on:  # yamllint disable-line rule:truthy
     pull_request:
         branches: [develop]
     workflow_dispatch:
+    workflow_call:
 
 jobs:
     test:
-        runs-on: ubuntu-latest
+        runs-on: ${{ matrix.os }}
+
         strategy:
             fail-fast: false
             matrix:
-                python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+                os: [ubuntu-latest, macos-latest, windows-latest]
+                python-versions: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
+                pandas-versions: [1.5.3, 2.0.0, 2.2.0, 2.2.3]
+                toolchain:
+                    - {compiler: gcc, version: 13}
+                exclude:
+                    - python-versions: '3.13'
+                      pandas-versions: 1.5.3
+                    - python-versions: '3.13'
+                      pandas-versions: 2.0.0
+                    - python-versions: '3.13'
+                      pandas-versions: 2.2.0
+                    - python-versions: '3.8'
+                      pandas-versions: 2.2.0
+                    - python-versions: '3.8'
+                      pandas-versions: 2.2.3
+                    - os: windows-latest
+                      python-versions: '3.8'
+                    - os: windows-latest
+                      python-versions: '3.9'
+                      pandas-versions: 2.2.0
+                    - os: windows-latest
+                      python-versions: '3.10'
+                      pandas-versions: 2.2.0
+                    - os: windows-latest
+                      python-versions: '3.11'
+                      pandas-versions: 2.2.0
+                    - os: windows-latest
+                      python-versions: '3.12'
+                      pandas-versions: 2.2.0
+                    - os: windows-latest
+                      python-versions: '3.13'
 
         steps:
             - name: Checkout repository
@@ -26,21 +59,25 @@ jobs:
               with:
                   submodules: recursive
 
-            - name: Set up Python ${{ matrix.python-version }}
+            - name: Set up Python ${{ matrix.python-versions }}
               uses: actions/setup-python@v5
               with:
-                  python-version: ${{ matrix.python-version }}
+                  python-version: ${{ matrix.python-versions }}
 
-            - name: Install dependencies
+            - name: Install dependencies pytest
               run: |
-                  sudo apt-get update
                   python -m pip install --upgrade pip
-                  python -m pip install pytest pytest-cov pytest-mpl
-                  python -m pip install .
+                  python -m pip install pytest pytest-cov
+
+            - name: >
+                  Install package and dependencies
+                  version ${{ matrix.pandas-versions }}
+              run: >
+                  python -m pip install
+                  pandas==${{ matrix.pandas-versions }} 'numpy<2' .
 
             - name: Test with pytest
-              run: |
-                  python -m pytest --cov --mpl
+              run: python -m pytest --cov
 
             - name: Upload coverage data to coveralls.io
               uses: coverallsapp/github-action@v2

@@ -7,6 +7,11 @@ Help::
 
     swmmtoolbox --help
 
+about
+~~~~~
+.. program-output:: swmmtoolbox about --help
+   :prompt:
+
 catalog
 ~~~~~~~
 .. program-output:: swmmtoolbox catalog --help

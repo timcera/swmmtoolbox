@@ -11,3 +11,4 @@ Python API Function Summary
     swmmtoolbox.swmmtoolbox.listdetail
     swmmtoolbox.swmmtoolbox.listvariables
     swmmtoolbox.swmmtoolbox.stdtoswmm5
+    swmmtoolbox.swmmtoolbox.about

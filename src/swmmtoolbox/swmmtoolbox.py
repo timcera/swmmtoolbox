@@ -13,7 +13,7 @@ import pandas as pd
 
 from .toolbox_utils.src.toolbox_utils import tsutils
 
-__all__ = ["catalog", "listdetail", "listvariables", "stdtoswmm5", "extract"]
+__all__ = ["about", "catalog", "listdetail", "listvariables", "stdtoswmm5", "extract"]
 
 PROPCODE = {
     0: {1: "Area"},
@@ -471,6 +471,11 @@ class SwmmExtract:
         return (date, value)
 
 
+def about():
+    """Display version number and system information."""
+    return tsutils.about(__name__)
+
+
 @tsutils.doc(_LOCAL_DOCSTRINGS)
 def catalog(filename, itemtype=""):
     """List the catalog of objects in output file.
@@ -644,7 +649,8 @@ def stdtoswmm5(start_date=None, end_date=None, input_ts="-"):
 
 @tsutils.doc(_LOCAL_DOCSTRINGS)
 def extract(filename, *labels):
-    """Get the time series data for a particular object and variable.
+    """
+    Get the time series data for a particular object and variable.
 
     Parameters
     ----------
@@ -657,8 +663,18 @@ def extract(filename, *labels):
     if len(labels) == 1:
         labels = labels[0]
 
+    if isinstance(labels, str):
+        labels = [labels]
+
+    label_list = []
+    for i in labels:
+        if isinstance(i, str):
+            label_list.append(i.split(","))
+        elif isinstance(i, (list, tuple)):
+            label_list.append(i)
+
     nlabels = []
-    for words in labels:
+    for words in label_list:
         with suppress(ValueError, TypeError):
             words[2] = str(words[2])
             typenumber = obj.type_check(words[2])
@@ -716,10 +732,12 @@ def main():
     if not os.path.exists("debug_swmmtoolbox"):
         sys.tracebacklimit = 0
 
-    @cltoolbox.command()
-    def about():
+    @cltoolbox.command("about")
+    def about_cli():
         """Display version number and system information."""
-        tsutils.about(__name__)
+        from pprint import pprint
+
+        pprint(about())
 
     @cltoolbox.command("catalog", formatter_class=RSTHelpFormatter)
     @tsutils.copy_doc(catalog)
@@ -735,7 +753,6 @@ def main():
     @tsutils.copy_doc(extract)
     def extract_cli(filename, *labels):
         """Get the time series data for a particular object and variable."""
-        labels = [i.split(",") for i in labels]
         tsutils.printiso(extract(filename, labels))
 
     @cltoolbox.command("listdetail", formatter_class=RSTHelpFormatter)

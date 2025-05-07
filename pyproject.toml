@@ -68,7 +68,7 @@ bitbucket = "https://bitbucket.org/timcera/swmmtoolbox/src/main/"
 name = "cz_conventional_commits"
 tag_format = "v$version"
 update_changelog_on_bump = true
-version = "4.0.14"
+version = "4.0.15"
 version_files = ["VERSION"]
 
 [tool.isort]

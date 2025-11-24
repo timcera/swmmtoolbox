@@ -13,53 +13,11 @@ on:  # yamllint disable-line rule:truthy
     workflow_dispatch:
 
 jobs:
-    test:
-        name: Test on Python ${{ matrix.python-version }}
-        runs-on: ubuntu-latest
-        strategy:
-            fail-fast: false
-            matrix:
-                python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
-
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v6
-              with:
-                  submodules: recursive
-
-            - name: Set up Python ${{ matrix.python-version }}
-              uses: actions/setup-python@v6
-              with:
-                  python-version: ${{ matrix.python-version }}
-
-            - name: Install dependencies
-              run: |
-                  sudo apt-get update
-                  python -m pip install --upgrade pip
-                  python -m pip install pytest pytest-cov pytest-mpl
-                  python -m pip install -e .
-
-            - name: Test with pytest
-              run: |
-                  python -m pytest --cov --mpl
-
-            - name: Upload coverage data to coveralls.io
-              uses: coverallsapp/github-action@v2
-              with:
-                  parallel: true
-
-    finish_coveralls:
-        needs: test
-        if: ${{ always() }}
-        runs-on: ubuntu-latest
-        steps:
-            - name: Coveralls Finished
-              uses: coverallsapp/github-action@v2
-              with:
-                  parallel-finished: true
+    tests:
+        uses: ./.github/workflows/tests.yml
 
     pypi-publish:
-        needs: test
+        needs: tests
         runs-on: ubuntu-latest
         environment: release
         name: upload release to PyPI

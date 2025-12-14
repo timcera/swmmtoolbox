@@ -23,8 +23,6 @@ repos:
           - id: check-xml
           - id: end-of-file-fixer
             exclude: notebooks/tstoolbox_plot_bash.sh
-          - id: fix-encoding-pragma
-            args: [--remove]
           - id: mixed-line-ending
           - id: trailing-whitespace
             exclude: notebooks/tstoolbox_plot_bash.sh

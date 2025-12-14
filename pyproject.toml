@@ -1,68 +1,69 @@
 [build-system]
 build-backend = "setuptools.build_meta"
 requires = [
-    "setuptools>=45",
-    "setuptools_scm[toml]>=6.2",
-    "wheel"
+    "setuptools-scm[simple]>=8",
+    "setuptools>=80"
 ]
 
 [project]
-name = "swmmtoolbox"
-dynamic = ["readme", "version"]
-description = "Command line script and Python library to read Storm Water Management Model binary output."
+authors = [
+    {email = "tim@cerazone.net", name = "Tim Cera"}
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+] # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
 dependencies = [
     "cltoolbox >= 1.0.0",
     "dateparser",
     "numpy",
     "pandas[excel]",
     "pint!=0.21.*",
-    "pint<0.22; python_version < '3.9'",
     "pint-pandas",
+    "pint<0.22; python_version < '3.9'",
     "pydantic",
     "scipy",
     "tabulate"
 ]
-authors = [
-    {name = "Tim Cera", email = "tim@cerazone.net"}
-]
-classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "Intended Audience :: Science/Research",
-    "Intended Audience :: End Users/Desktop",
-    "Intended Audience :: Developers",
-    "Environment :: Console",
-    "License :: OSI Approved :: BSD License",
-    "Natural Language :: English",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Topic :: Scientific/Engineering :: Information Analysis",
-    "Topic :: Scientific/Engineering",
-    "Topic :: Software Development :: Libraries :: Python Modules"
-]
+description = "Command line script and Python library to read Storm Water Management Model binary output."
+dynamic = ["readme", "version"]
 keywords = [
-    "time-series",
     "cli-app",
-    "swmm",
-    "stormwater",
     "hydrograph",
+    "hydrology",
     "model",
     "simulation",
-    "hydrology"
+    "stormwater",
+    "swmm",
+    "time-series"
 ]
 license = {text = "BSD-3-Clause"}
-requires-python = ">=3.8"
+name = "swmmtoolbox"
+readme = "README.rst"
+requires-python = ">=3.10"
 
 [project.scripts]
 swmmtoolbox = "swmmtoolbox.swmmtoolbox:main"
 
 [project.urls]
+bitbucket = "https://bitbucket.org/timcera/swmmtoolbox/src/main/"
 documentation = "https://timcera.bitbucket.io/swmmtoolbox/docs/index.html#swmmtoolbox-documentation"
 github = "https://github.com/timcera/swmmtoolbox"
-bitbucket = "https://bitbucket.org/timcera/swmmtoolbox/src/main/"
 
 [tool.commitizen]
 name = "cz_conventional_commits"
@@ -78,8 +79,8 @@ profile = "black"
 testpaths = ["tests"]
 
 [tool.setuptools]
-license-files = ["LICENSE.txt"]
 include-package-data = true
+license-files = ["LICENSE.txt"]
 
 [tool.setuptools.dynamic]
 readme = {file = "README.rst"}
@@ -87,5 +88,3 @@ version = {file = "VERSION"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
-
-[tool.setuptools_scm]

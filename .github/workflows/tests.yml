@@ -22,24 +22,29 @@ jobs:
             matrix:
                 os: [ubuntu-latest, macos-latest, windows-latest]
                 python-versions: ['3.10', '3.11', '3.12', '3.13', '3.14']
-                pandas-versions: [pandas<2.0.0, pandas>=2.0.0]
-                numpy-versions: [numpy<2.0.0, numpy>=2.0.0]
+                pandas-versions: [pandas==1.*, pandas==2.*, pandas==3.*]
+                numpy-versions: [numpy==1.*, numpy==2.*]
 
                 exclude:
                     - python-versions: '3.12'
-                      pandas-versions: pandas<2.0.0
+                      pandas-versions: pandas==1.*
                     - python-versions: '3.13'
-                      pandas-versions: pandas<2.0.0
+                      pandas-versions: pandas==1.*
                     - python-versions: '3.14'
-                      pandas-versions: pandas<2.0.0
+                      pandas-versions: pandas==1.*
                     - python-versions: '3.12'
-                      numpy-versions: numpy<2.0.0
+                      numpy-versions: numpy==1.*
                     - python-versions: '3.13'
-                      numpy-versions: numpy<2.0.0
+                      numpy-versions: numpy==1.*
                     - python-versions: '3.14'
-                      numpy-versions: numpy<2.0.0
-                    - pandas-versions: pandas<2.0.0
-                      numpy-versions: numpy>=2.0.0
+                      numpy-versions: numpy==1.*
+                    - pandas-versions: pandas==1.*
+                      numpy-versions: numpy==2.*
+                    - python-versions: '3.10'
+                      pandas-versions: pandas==3.*
+                    - python-versions: '3.11'
+                      numpy-versions: numpy==1.*
+                      pandas-versions: pandas==1.*
 
         steps:
             - name: Checkout repository

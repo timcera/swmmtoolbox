@@ -32,10 +32,10 @@ dependencies = [
     "cltoolbox >= 1.0.0",
     "dateparser",
     "numpy",
+    "openpyxl",
     "pandas[excel]",
     "pint!=0.21.*",
     "pint-pandas",
-    "pint<0.22; python_version < '3.9'",
     "pydantic",
     "scipy",
     "tabulate"

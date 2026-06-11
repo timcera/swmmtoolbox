@@ -30,7 +30,7 @@ The swmmtoolbox is a Python script to read the Storm Water Management Model
 
 Requirements
 ============
-Python - of course, version 3.7+.
+Python - of course, version 3.10+.
 
 Installation
 ============

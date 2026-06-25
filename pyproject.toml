@@ -70,12 +70,32 @@ tag_format = "v$version"
 update_changelog_on_bump = true
 version = "4.1.2"
 version_files = ["VERSION"]
+multiline = true
 
 [tool.isort]
 profile = "black"
 
+[tool.jupytext]
+formats = "auto:percent"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff]
+fix = true
+exclude = [
+    "src/*/toolbox_utils/**/*.py"
+]
+
+[tool.ruff.lint]
+extend-select = ["I"]
+
+[tool.ruff.lint.isort.import-heading]
+future = "Future imports"
+standard-library = "Standard library imports"
+third-party = "Third party imports"
+first-party = "First party imports"
+local-folder = "Local folder imports"
 
 [tool.setuptools]
 include-package-data = true
